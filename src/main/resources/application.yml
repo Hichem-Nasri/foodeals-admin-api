@@ -1,0 +1,61 @@
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: "aabou.zakaria909@gmail.com"
+    password: "cyyv vfqb cpru jxmw"
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  application:
+    name: Foodeals
+  datasource:
+    url: jdbc:postgresql:foodeals.postgres.database.azure.com:5432/foodeals
+    username: postgres
+    password: P@ssw0rd!Jk7#vQxL
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: create
+    show-sql: false
+
+app:
+  security:
+    jwt:
+      secret-key: 883e807d7ee46bfd82464d697b0e6455d32b8406c6ee3a36e4a97de7ab976196
+
+      # 30 days
+      expiration: 2592000000
+
+      refresh-token:
+        # 30 days
+        expiration: 2592000000
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    open-in-view: false
+  datasource:
+    hikari:
+      auto-commit: false
+
+logging:
+  level:
+    root: ERROR
+
+  jpa:
+    properties:
+      hibernate:
+        type:
+          preferred-instant-jdbc-type: TIMESTAMP
+        jdbc:
+          time_zone: UTC
