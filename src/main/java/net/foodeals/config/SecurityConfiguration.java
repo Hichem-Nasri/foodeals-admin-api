@@ -49,6 +49,7 @@ public class SecurityConfiguration {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(WHITE_LIST).permitAll()
+                        .requestMatchers("v1/crm/demandes").permitAll()
                         .anyRequest().authenticated()
                 	)
                 
