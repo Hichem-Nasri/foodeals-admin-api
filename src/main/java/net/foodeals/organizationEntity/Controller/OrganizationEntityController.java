@@ -62,7 +62,7 @@ public class OrganizationEntityController {
             }
             return new ResponseEntity<>(organizationEntity.getType().equals(EntityType.DELIVERY_PARTNER) ? this.modelMapper.mapDeliveryPartners(organizationEntity) : this.modelMapper.mapOrganizationEntity(organizationEntity), HttpStatus.CREATED);
         } catch (Exception e) {
-            throw new Exception("Failed to create partner: ");
+            throw new Exception("Failed to create partner: " +e.getStackTrace());
         }
     }
 

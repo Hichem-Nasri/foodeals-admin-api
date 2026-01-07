@@ -1,4 +1,4 @@
-package net.foodeals.common.seeders;
+/*package net.foodeals.common.seeders;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -1107,4 +1107,4 @@ public class DatabaseSeeder {
 		return bs;
 	}
 
-}
+}*/

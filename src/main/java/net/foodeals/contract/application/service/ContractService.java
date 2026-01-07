@@ -50,7 +50,7 @@ public class ContractService {
     private final RegionServiceImpl regionServiceImpl;
     private final UserService userService;
     private final UserContractService userContractService;
-    private static final String BASE_RESOURCE_PATH_IN_CONTAINER = "/app/resources/";
+    private static final String BASE_RESOURCE_PATH_IN_CONTAINER = "resources/";
 
     public ContractService(ContractRepository contractRepository, CityRepository cityRepository, CityService cityService, ActivityService activityService, SolutionService solutionService, SolutionContractService solutionContractService, AddressService addressService, ContactsService contactsService, CommissionService commissionService, SubscriptionService subscriptionService, BankInformationService bankInformationService, RegionServiceImpl regionServiceImpl, UserService userService, UserContractService userContractService) {
         this.contractRepository = contractRepository;
@@ -245,7 +245,7 @@ public class ContractService {
 
     @Transactional
     public byte[] updateDocument(Contract contract) throws IOException, DocumentException {
-        String templatePath =  BASE_RESOURCE_PATH_IN_CONTAINER + "/resources/contract.html";
+        String templatePath =  BASE_RESOURCE_PATH_IN_CONTAINER + "/contract.html";
         String activities =  contract.getOrganizationEntity().getActivities().stream().map(f -> f.getName()).collect(Collectors.joining(" , "));
         String features = contract.getOrganizationEntity().getFeatures().stream().filter(f -> f.getName().equals("seller_pro") || f.getName().equals("buyer_pro")).map(f -> f.getName()).collect(Collectors.joining(" , "));
 
