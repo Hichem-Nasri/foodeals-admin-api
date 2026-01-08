@@ -499,6 +499,37 @@ CREATE TABLE IF NOT EXISTS admin_notification_preferences (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     deleted_at TIMESTAMP WITH TIME ZONE DEFAULT null
 );
+
+CREATE TABLE IF NOT EXISTS blog_categories (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    name VARCHAR(150) NOT NULL UNIQUE,
+
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    deleted_at TIMESTAMP WITH TIME ZONE DEFAULT null
+);
+CREATE TABLE IF NOT EXISTS blogs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    author VARCHAR(150),
+
+    category_id UUID NOT NULL,
+    published BOOLEAN NOT NULL DEFAULT false,
+
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    deleted_at TIMESTAMP WITH TIME ZONE DEFAULT null,
+
+    CONSTRAINT fk_blog_category
+        FOREIGN KEY (category_id)
+        REFERENCES blog_categories (id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+);
+
 CREATE INDEX IF NOT EXISTS idx_admin_notification_states_admin
     ON admin_notification_states(admin_id);
 
@@ -513,6 +544,11 @@ CREATE INDEX IF NOT EXISTS idx_admin_notifications_priority
 
 CREATE INDEX IF NOT EXISTS idx_admin_notifications_created_at
     ON admin_notifications(created_at);
+
+CREATE INDEX IF NOT EXISTS idx_blogs_category_id ON blogs(category_id);
+CREATE INDEX IF NOT EXISTS idx_blogs_deleted_at ON blogs(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_blog_categories_deleted_at ON blog_categories(deleted_at);
+
 
 
 
