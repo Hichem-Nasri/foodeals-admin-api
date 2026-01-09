@@ -36,7 +36,7 @@ public class Blog extends AbstractEntity<UUID> {
 
     @Override
     public UUID getId() {
-        return null;
+        return id;
     }
 }
 

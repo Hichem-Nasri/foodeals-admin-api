@@ -1,6 +1,7 @@
 package net.foodeals.blog.infrastructure.controller;
 
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.blog.application.dtos.BlogResponse;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/v1/blogs")
 @RequiredArgsConstructor
+@Transactional
 public class BlogController {
 
     private final BlogService blogService;
