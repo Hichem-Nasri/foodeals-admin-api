@@ -3,6 +3,7 @@ package net.foodeals.blog.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import net.foodeals.common.models.AbstractEntity;
+import net.foodeals.user.domain.entities.User;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
@@ -26,7 +27,8 @@ public class Blog extends AbstractEntity<UUID> {
     @Column(nullable = false, length = 5000)
     private String content;
 
-    private String author;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User author;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)

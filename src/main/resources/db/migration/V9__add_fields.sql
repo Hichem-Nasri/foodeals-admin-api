@@ -514,7 +514,7 @@ CREATE TABLE IF NOT EXISTS blogs (
 
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
-    author VARCHAR(150),
+    author_id integer,
 
     category_id UUID NOT NULL,
     published BOOLEAN NOT NULL DEFAULT false,

@@ -17,8 +17,6 @@ public class CreateBlogRequest {
     @NotBlank
     private String content;
 
-    private String author;
-
     @NotNull
     private UUID categoryId;
 
