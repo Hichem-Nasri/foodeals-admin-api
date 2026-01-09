@@ -6,12 +6,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.blog.application.dtos.BlogResponse;
 import net.foodeals.blog.application.dtos.CreateBlogRequest;
+import net.foodeals.blog.application.dtos.UpdatedBlogRequest;
 import net.foodeals.blog.application.service.BlogService;
+import org.hibernate.sql.Update;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -48,6 +51,19 @@ public class BlogController {
     @ResponseStatus(HttpStatus.CREATED)
     public BlogResponse createBlog(@Valid @RequestBody CreateBlogRequest request) {
         return blogService.createBlog(request);
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public BlogResponse updateBlog(@Valid @RequestBody UpdatedBlogRequest request,@PathVariable UUID id) {
+        return blogService.updateBlog(request,id);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public  ResponseEntity<Void>  deleteBlog(@PathVariable UUID id) {
+         blogService.deleteBlog(id);
+        return ResponseEntity.noContent().build();
     }
 }
 

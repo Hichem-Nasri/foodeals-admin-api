@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.blog.application.dtos.BlogResponse;
 import net.foodeals.blog.application.dtos.CreateBlogRequest;
+import net.foodeals.blog.application.dtos.UpdatedBlogRequest;
 import net.foodeals.blog.application.service.BlogService;
 import net.foodeals.blog.application.specifications.BlogSpecification;
 import net.foodeals.blog.domain.entity.Blog;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
@@ -76,6 +78,29 @@ public class BlogServiceImpl implements BlogService {
                 .build();
 
         return mapToResponse(blogRepository.save(blog));
+    }
+
+    @Override
+    public BlogResponse updateBlog(UpdatedBlogRequest request, UUID id) {
+        Blog blog = blogRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Blog not found"));
+
+        BlogCategory category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new EntityNotFoundException("Blog category not found"));
+        blog.setTitle(request.getTitle());
+        blog.setContent(request.getContent());
+        blog.setCategory(category);
+        blog.setPublished(request.isPublished());
+        blog.setUpdatedAt(Instant.now());
+        return mapToResponse(blogRepository.save(blog));
+    }
+
+    @Override
+    public void deleteBlog(UUID id) {
+        Blog blog = blogRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Blog not found"));
+        blog.setDeletedAt(Instant.now());
+        blogRepository.save(blog);
     }
 
     private BlogResponse mapToResponse(Blog blog) {
