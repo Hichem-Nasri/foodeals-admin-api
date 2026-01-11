@@ -50,7 +50,7 @@ public class ContractService {
     private final RegionServiceImpl regionServiceImpl;
     private final UserService userService;
     private final UserContractService userContractService;
-    private static final String BASE_RESOURCE_PATH_IN_CONTAINER = "resources/";
+    private static final String BASE_RESOURCE_PATH_IN_CONTAINER = "app/resources/";
 
     public ContractService(ContractRepository contractRepository, CityRepository cityRepository, CityService cityService, ActivityService activityService, SolutionService solutionService, SolutionContractService solutionContractService, AddressService addressService, ContactsService contactsService, CommissionService commissionService, SubscriptionService subscriptionService, BankInformationService bankInformationService, RegionServiceImpl regionServiceImpl, UserService userService, UserContractService userContractService) {
         this.contractRepository = contractRepository;
