@@ -65,7 +65,7 @@ import java.util.*;
 @AllArgsConstructor
 public class OrganizationEntitySeeder {
 
-   /* private final OrganizationEntityService organizationEntityService;
+   private final OrganizationEntityService organizationEntityService;
     private final SubEntityRepository subEntityRepository;
     private final DonationService donationService;
     private final AddressService addressService;
@@ -545,5 +545,5 @@ for (int i = 0; i < 8; i++) {
 ////
 //////// case of subentity don't pay
 //////// case of subentity pay.
-*/
+
 }
