@@ -64,10 +64,11 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://147.93.55.75:3000",
+                "http://147.93.55.75:3001",
                 "http://147.93.55.75:8080",
                 "http://localhost:8080",
                 "http://localhost:3000",
+                "http://localhost:3001",
                 "https://www.elitecodersacademy.com",
                 "http://www.elitecodersacademy.com",
                 "http://elitecodersacademy.com",
