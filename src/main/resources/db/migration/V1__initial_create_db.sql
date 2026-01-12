@@ -42,7 +42,7 @@ CREATE TABLE public.accounts (
 );
 
 
-ALTER TABLE public.accounts OWNER ;
+ALTER TABLE public.accounts ;
 
 --
 -- TOC entry 203 (class 1259 OID 1597267)
@@ -60,7 +60,7 @@ CREATE TABLE public.activities (
 );
 
 
-ALTER TABLE public.activities OWNER;
+ALTER TABLE public.activities;
 
 --
 -- TOC entry 204 (class 1259 OID 1597276)
@@ -80,7 +80,7 @@ CREATE TABLE public.address (
 );
 
 
-ALTER TABLE public.address OWNER;
+ALTER TABLE public.address;
 
 --
 -- TOC entry 205 (class 1259 OID 1597284)
@@ -100,7 +100,7 @@ CREATE TABLE public.article (
 );
 
 
-ALTER TABLE public.article OWNER;
+ALTER TABLE public.article;
 
 --
 -- TOC entry 206 (class 1259 OID 1597294)
@@ -117,7 +117,7 @@ CREATE TABLE public.authorities (
 );
 
 
-ALTER TABLE public.authorities OWNER;
+ALTER TABLE public.authorities;
 
 --
 -- TOC entry 207 (class 1259 OID 1597302)
@@ -130,7 +130,7 @@ CREATE TABLE public.authorities_roles (
 );
 
 
-ALTER TABLE public.authorities_roles OWNER;
+ALTER TABLE public.authorities_roles;
 
 --
 -- TOC entry 208 (class 1259 OID 1597305)
@@ -148,7 +148,7 @@ CREATE TABLE public.bank_information (
 );
 
 
-ALTER TABLE public.bank_information OWNER;
+ALTER TABLE public.bank_information;
 
 --
 -- TOC entry 209 (class 1259 OID 1597313)
@@ -165,7 +165,7 @@ CREATE TABLE public.blog_categories (
 );
 
 
-ALTER TABLE public.blog_categories OWNER;
+ALTER TABLE public.blog_categories;
 
 --
 -- TOC entry 210 (class 1259 OID 1597321)
@@ -185,7 +185,7 @@ CREATE TABLE public.box_items (
 );
 
 
-ALTER TABLE public.box_items OWNER;
+ALTER TABLE public.box_items;
 
 --
 -- TOC entry 211 (class 1259 OID 1597326)
@@ -202,7 +202,7 @@ CREATE TABLE public.boxes (
 );
 
 
-ALTER TABLE public.boxes OWNER;
+ALTER TABLE public.boxes;
 
 --
 -- TOC entry 212 (class 1259 OID 1597332)
@@ -219,7 +219,7 @@ CREATE TABLE public.cities (
 );
 
 
-ALTER TABLE public.cities OWNER;
+ALTER TABLE public.cities;
 
 --
 -- TOC entry 213 (class 1259 OID 1597337)
@@ -238,7 +238,7 @@ CREATE TABLE public.commissions (
 );
 
 
-ALTER TABLE public.commissions OWNER;
+ALTER TABLE public.commissions;
 
 --
 -- TOC entry 214 (class 1259 OID 1597342)
@@ -259,7 +259,7 @@ CREATE TABLE public.contact (
 );
 
 
-ALTER TABLE public.contact OWNER;
+ALTER TABLE public.contact;
 
 --
 -- TOC entry 215 (class 1259 OID 1597350)
@@ -284,7 +284,7 @@ CREATE TABLE public.contracts (
 );
 
 
-ALTER TABLE public.contracts OWNER;
+ALTER TABLE public.contracts;
 
 --
 -- TOC entry 216 (class 1259 OID 1597359)
@@ -300,7 +300,7 @@ CREATE TABLE public.countries (
 );
 
 
-ALTER TABLE public.countries OWNER;
+ALTER TABLE public.countries;
 
 --
 -- TOC entry 217 (class 1259 OID 1597364)
@@ -320,7 +320,7 @@ CREATE TABLE public.coupons (
 );
 
 
-ALTER TABLE public.coupons OWNER;
+ALTER TABLE public.coupons;
 
 --
 -- TOC entry 218 (class 1259 OID 1597369)
@@ -337,7 +337,7 @@ CREATE TABLE public.covered_zones (
 );
 
 
-ALTER TABLE public.covered_zones OWNER;
+ALTER TABLE public.covered_zones;
 
 --
 -- TOC entry 219 (class 1259 OID 1597374)
@@ -363,7 +363,7 @@ CREATE TABLE public.deadlines (
 );
 
 
-ALTER TABLE public.deadlines OWNER;
+ALTER TABLE public.deadlines;
 
 --
 -- TOC entry 220 (class 1259 OID 1597386)
@@ -382,7 +382,7 @@ CREATE TABLE public.deals (
 );
 
 
-ALTER TABLE public.deals OWNER TO postgres;
+ALTER TABLE public.deals;
 
 --
 -- TOC entry 221 (class 1259 OID 1597391)
@@ -402,7 +402,7 @@ CREATE TABLE public.deletion_reason (
 );
 
 
-ALTER TABLE public.deletion_reason OWNER TO postgres;
+ALTER TABLE public.deletion_reason;
 
 --
 -- TOC entry 222 (class 1259 OID 1597401)
@@ -421,7 +421,7 @@ CREATE TABLE public.deliveries (
 );
 
 
-ALTER TABLE public.deliveries OWNER TO postgres;
+ALTER TABLE public.deliveries;
 
 --
 -- TOC entry 223 (class 1259 OID 1597409)
@@ -438,7 +438,7 @@ CREATE TABLE public.delivery_positions (
 );
 
 
-ALTER TABLE public.delivery_positions OWNER TO postgres;
+ALTER TABLE public.delivery_positions;
 
 --
 -- TOC entry 224 (class 1259 OID 1597414)
@@ -466,7 +466,7 @@ CREATE TABLE public.donation (
 );
 
 
-ALTER TABLE public.donation OWNER TO postgres;
+ALTER TABLE public.donation;
 
 --
 -- TOC entry 225 (class 1259 OID 1597426)
@@ -485,7 +485,7 @@ CREATE TABLE public.event (
 );
 
 
-ALTER TABLE public.event OWNER TO postgres;
+ALTER TABLE public.event;
 
 --
 -- TOC entry 226 (class 1259 OID 1597434)
@@ -502,7 +502,7 @@ CREATE TABLE public.event_publication (
 );
 
 
-ALTER TABLE public.event_publication OWNER TO postgres;
+ALTER TABLE public.event_publication;
 
 --
 -- TOC entry 227 (class 1259 OID 1597442)
@@ -518,7 +518,7 @@ CREATE TABLE public.features (
 );
 
 
-ALTER TABLE public.features OWNER TO postgres;
+ALTER TABLE public.features;
 
 --
 -- TOC entry 228 (class 1259 OID 1597447)
@@ -538,7 +538,7 @@ CREATE TABLE public.notifications (
 );
 
 
-ALTER TABLE public.notifications OWNER TO postgres;
+ALTER TABLE public.notifications;
 
 --
 -- TOC entry 229 (class 1259 OID 1597455)
@@ -568,7 +568,7 @@ CREATE TABLE public.offers (
 );
 
 
-ALTER TABLE public.offers OWNER TO postgres;
+ALTER TABLE public.offers;
 
 --
 -- TOC entry 230 (class 1259 OID 1597465)
@@ -588,7 +588,7 @@ CREATE TABLE public.open_time (
 );
 
 
-ALTER TABLE public.open_time OWNER TO postgres;
+ALTER TABLE public.open_time;
 
 --
 -- TOC entry 231 (class 1259 OID 1597473)
@@ -615,7 +615,7 @@ CREATE TABLE public.orders (
 );
 
 
-ALTER TABLE public.orders OWNER TO postgres;
+ALTER TABLE public.orders;
 
 --
 -- TOC entry 232 (class 1259 OID 1597483)
@@ -639,7 +639,7 @@ CREATE TABLE public.organization_entities (
 );
 
 
-ALTER TABLE public.organization_entities OWNER TO postgres;
+ALTER TABLE public.organization_entities;
 
 --
 -- TOC entry 233 (class 1259 OID 1597498)
@@ -652,7 +652,7 @@ CREATE TABLE public.organization_entities_activities (
 );
 
 
-ALTER TABLE public.organization_entities_activities OWNER TO postgres;
+ALTER TABLE public.organization_entities_activities;
 
 --
 -- TOC entry 234 (class 1259 OID 1597503)
@@ -665,7 +665,7 @@ CREATE TABLE public.organization_entities_commissions (
 );
 
 
-ALTER TABLE public.organization_entities_commissions OWNER TO postgres;
+ALTER TABLE public.organization_entities_commissions;
 
 --
 -- TOC entry 235 (class 1259 OID 1597508)
@@ -678,7 +678,7 @@ CREATE TABLE public.organization_entities_deletion_reasons (
 );
 
 
-ALTER TABLE public.organization_entities_deletion_reasons OWNER TO postgres;
+ALTER TABLE public.organization_entities_deletion_reasons;
 
 --
 -- TOC entry 236 (class 1259 OID 1597513)
@@ -691,7 +691,7 @@ CREATE TABLE public.organization_entities_features (
 );
 
 
-ALTER TABLE public.organization_entities_features OWNER TO postgres;
+ALTER TABLE public.organization_entities_features;
 
 --
 -- TOC entry 237 (class 1259 OID 1597518)
@@ -704,7 +704,7 @@ CREATE TABLE public.organization_entities_solutions (
 );
 
 
-ALTER TABLE public.organization_entities_solutions OWNER TO postgres;
+ALTER TABLE public.organization_entities_solutions;
 
 --
 -- TOC entry 238 (class 1259 OID 1597523)
@@ -717,7 +717,7 @@ CREATE TABLE public.organization_entities_subscriptions (
 );
 
 
-ALTER TABLE public.organization_entities_subscriptions OWNER TO postgres;
+ALTER TABLE public.organization_entities_subscriptions;
 
 --
 -- TOC entry 239 (class 1259 OID 1597528)
@@ -748,7 +748,7 @@ CREATE TABLE public.partner_commissions (
 );
 
 
-ALTER TABLE public.partner_commissions OWNER TO postgres;
+ALTER TABLE public.partner_commissions;
 
 --
 -- TOC entry 240 (class 1259 OID 1597542)
@@ -773,7 +773,7 @@ CREATE TABLE public.payment (
 );
 
 
-ALTER TABLE public.payment OWNER TO postgres;
+ALTER TABLE public.payment;
 
 --
 -- TOC entry 241 (class 1259 OID 1597552)
@@ -802,7 +802,7 @@ CREATE TABLE public.payment_method (
 );
 
 
-ALTER TABLE public.payment_method OWNER TO postgres;
+ALTER TABLE public.payment_method;
 
 --
 -- TOC entry 242 (class 1259 OID 1597560)
@@ -820,7 +820,7 @@ CREATE TABLE public.product_categories (
 );
 
 
-ALTER TABLE public.product_categories OWNER TO postgres;
+ALTER TABLE public.product_categories;
 
 --
 -- TOC entry 243 (class 1259 OID 1597568)
@@ -847,7 +847,7 @@ CREATE TABLE public.products (
 );
 
 
-ALTER TABLE public.products OWNER TO postgres;
+ALTER TABLE public.products;
 
 --
 -- TOC entry 244 (class 1259 OID 1597577)
@@ -870,7 +870,7 @@ CREATE TABLE public.prospect (
 );
 
 
-ALTER TABLE public.prospect OWNER TO postgres;
+ALTER TABLE public.prospect;
 
 --
 -- TOC entry 245 (class 1259 OID 1597589)
@@ -883,7 +883,7 @@ CREATE TABLE public.prospect_activities (
 );
 
 
-ALTER TABLE public.prospect_activities OWNER TO postgres;
+ALTER TABLE public.prospect_activities;
 
 --
 -- TOC entry 246 (class 1259 OID 1597594)
@@ -896,7 +896,7 @@ CREATE TABLE public.prospect_contacts (
 );
 
 
-ALTER TABLE public.prospect_contacts OWNER TO postgres;
+ALTER TABLE public.prospect_contacts;
 
 --
 -- TOC entry 247 (class 1259 OID 1597599)
@@ -909,7 +909,7 @@ CREATE TABLE public.prospect_deletion_reasons (
 );
 
 
-ALTER TABLE public.prospect_deletion_reasons OWNER TO postgres;
+ALTER TABLE public.prospect_deletion_reasons;
 
 --
 -- TOC entry 248 (class 1259 OID 1597604)
@@ -922,7 +922,7 @@ CREATE TABLE public.prospect_events (
 );
 
 
-ALTER TABLE public.prospect_events OWNER TO postgres;
+ALTER TABLE public.prospect_events;
 
 --
 -- TOC entry 249 (class 1259 OID 1597609)
@@ -935,7 +935,7 @@ CREATE TABLE public.prospect_solutions (
 );
 
 
-ALTER TABLE public.prospect_solutions OWNER TO postgres;
+ALTER TABLE public.prospect_solutions;
 
 --
 -- TOC entry 250 (class 1259 OID 1597614)
@@ -951,7 +951,7 @@ CREATE TABLE public.rayon (
 );
 
 
-ALTER TABLE public.rayon OWNER TO postgres;
+ALTER TABLE public.rayon;
 
 --
 -- TOC entry 251 (class 1259 OID 1597619)
@@ -968,7 +968,7 @@ CREATE TABLE public.region (
 );
 
 
-ALTER TABLE public.region OWNER TO postgres;
+ALTER TABLE public.region;
 
 --
 -- TOC entry 252 (class 1259 OID 1597624)
@@ -984,7 +984,7 @@ CREATE TABLE public.roles (
 );
 
 
-ALTER TABLE public.roles OWNER TO postgres;
+ALTER TABLE public.roles;
 
 --
 -- TOC entry 253 (class 1259 OID 1597629)
@@ -1003,7 +1003,7 @@ CREATE TABLE public.solution_contracts (
 );
 
 
-ALTER TABLE public.solution_contracts OWNER TO postgres;
+ALTER TABLE public.solution_contracts;
 
 --
 -- TOC entry 254 (class 1259 OID 1597636)
@@ -1019,7 +1019,7 @@ CREATE TABLE public.solutions (
 );
 
 
-ALTER TABLE public.solutions OWNER TO postgres;
+ALTER TABLE public.solutions;
 
 --
 -- TOC entry 255 (class 1259 OID 1597641)
@@ -1036,7 +1036,7 @@ CREATE TABLE public.states (
 );
 
 
-ALTER TABLE public.states OWNER TO postgres;
+ALTER TABLE public.states;
 
 --
 -- TOC entry 256 (class 1259 OID 1597646)
@@ -1061,7 +1061,7 @@ CREATE TABLE public.sub_entities (
 );
 
 
-ALTER TABLE public.sub_entities OWNER TO postgres;
+ALTER TABLE public.sub_entities;
 
 --
 -- TOC entry 257 (class 1259 OID 1597657)
@@ -1074,7 +1074,7 @@ CREATE TABLE public.sub_entities_activities (
 );
 
 
-ALTER TABLE public.sub_entities_activities OWNER TO postgres;
+ALTER TABLE public.sub_entities_activities;
 
 --
 -- TOC entry 258 (class 1259 OID 1597662)
@@ -1087,7 +1087,7 @@ CREATE TABLE public.sub_entities_commissions (
 );
 
 
-ALTER TABLE public.sub_entities_commissions OWNER TO postgres;
+ALTER TABLE public.sub_entities_commissions;
 
 --
 -- TOC entry 259 (class 1259 OID 1597667)
@@ -1100,7 +1100,7 @@ CREATE TABLE public.sub_entities_contacts (
 );
 
 
-ALTER TABLE public.sub_entities_contacts OWNER TO postgres;
+ALTER TABLE public.sub_entities_contacts;
 
 --
 -- TOC entry 260 (class 1259 OID 1597672)
@@ -1113,7 +1113,7 @@ CREATE TABLE public.sub_entities_deletion_reasons (
 );
 
 
-ALTER TABLE public.sub_entities_deletion_reasons OWNER TO postgres;
+ALTER TABLE public.sub_entities_deletion_reasons;
 
 --
 -- TOC entry 261 (class 1259 OID 1597677)
@@ -1126,7 +1126,7 @@ CREATE TABLE public.sub_entities_solutions (
 );
 
 
-ALTER TABLE public.sub_entities_solutions OWNER TO postgres;
+ALTER TABLE public.sub_entities_solutions;
 
 --
 -- TOC entry 262 (class 1259 OID 1597682)
@@ -1139,7 +1139,7 @@ CREATE TABLE public.sub_entities_subscriptions (
 );
 
 
-ALTER TABLE public.sub_entities_subscriptions OWNER TO postgres;
+ALTER TABLE public.sub_entities_subscriptions;
 
 --
 -- TOC entry 263 (class 1259 OID 1597687)
@@ -1168,7 +1168,7 @@ CREATE TABLE public.subscription (
 );
 
 
-ALTER TABLE public.subscription OWNER TO postgres;
+ALTER TABLE public.subscription;
 
 --
 -- TOC entry 264 (class 1259 OID 1597697)
@@ -1181,7 +1181,7 @@ CREATE TABLE public.subscription_solutions (
 );
 
 
-ALTER TABLE public.subscription_solutions OWNER TO postgres;
+ALTER TABLE public.subscription_solutions;
 
 --
 -- TOC entry 265 (class 1259 OID 1597702)
@@ -1206,7 +1206,7 @@ CREATE TABLE public.transactions (
 );
 
 
-ALTER TABLE public.transactions OWNER TO postgres;
+ALTER TABLE public.transactions;
 
 --
 -- TOC entry 266 (class 1259 OID 1597714)
@@ -1223,7 +1223,7 @@ CREATE TABLE public.user_activities (
 );
 
 
-ALTER TABLE public.user_activities OWNER TO postgres;
+ALTER TABLE public.user_activities;
 
 --
 -- TOC entry 267 (class 1259 OID 1597719)
@@ -1240,7 +1240,7 @@ CREATE TABLE public.user_contract (
 );
 
 
-ALTER TABLE public.user_contract OWNER TO postgres;
+ALTER TABLE public.user_contract;
 
 --
 -- TOC entry 268 (class 1259 OID 1597726)
@@ -1279,7 +1279,7 @@ CREATE TABLE public.users (
 );
 
 
-ALTER TABLE public.users OWNER TO postgres;
+ALTER TABLE public.users;
 
 CREATE TABLE public.user_personal_documents (
     id UUID PRIMARY KEY,
@@ -1291,7 +1291,7 @@ CREATE TABLE public.user_personal_documents (
     deleted_at timestamp(6) with time zone,
     updated_at timestamp(6) with time zone NOT NULL
 );
-ALTER TABLE public.user_personal_documents OWNER TO postgres;
+ALTER TABLE public.user_personal_documents;
 
 CREATE TABLE public.user_internal_documents (
     id UUID PRIMARY KEY,
@@ -1302,7 +1302,7 @@ CREATE TABLE public.user_internal_documents (
     deleted_at timestamp(6) with time zone,
     updated_at timestamp(6) with time zone NOT NULL
 );
-ALTER TABLE public.user_internal_documents OWNER TO postgres;
+ALTER TABLE public.user_internal_documents;
 
 CREATE TABLE public.absences (
     id UUID PRIMARY KEY,
@@ -1318,7 +1318,7 @@ CREATE TABLE public.absences (
     deleted_at timestamp(6) with time zone,
     updated_at timestamp(6) with time zone NOT NULL
 );
-ALTER TABLE public.absences OWNER TO postgres;
+ALTER TABLE public.absences ;
 --
 -- TOC entry 269 (class 1259 OID 1597740)
 -- Name: users_deletion_reasons; Type: TABLE; Schema: public; Owner: postgres
@@ -1330,7 +1330,7 @@ CREATE TABLE public.users_deletion_reasons (
 );
 
 
-ALTER TABLE public.users_deletion_reasons OWNER TO postgres;
+ALTER TABLE public.users_deletion_reasons;
 
 --
 -- TOC entry 201 (class 1259 OID 1597257)
@@ -1345,7 +1345,7 @@ CREATE SEQUENCE public.users_seq
     CACHE 1;
 
 
-ALTER TABLE public.users_seq OWNER TO postgres;
+ALTER TABLE public.users_seq;
 
 --
 -- TOC entry 270 (class 1259 OID 1597745)
@@ -1358,7 +1358,7 @@ CREATE TABLE public.users_solutions (
 );
 
 
-ALTER TABLE public.users_solutions OWNER TO postgres;
+ALTER TABLE public.users_solutions ;
 
 --
 -- TOC entry 271 (class 1259 OID 1597750)
@@ -1380,7 +1380,7 @@ CREATE TABLE public.working_hours (
 );
 
 
-ALTER TABLE public.working_hours OWNER TO postgres;
+ALTER TABLE public.working_hours;
 
 --
 -- TOC entry 3604 (class 0 OID 1597259)
