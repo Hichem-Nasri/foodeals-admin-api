@@ -41,9 +41,6 @@ CREATE TABLE public.accounts (
     type character varying(255)
 );
 
-
-ALTER TABLE public.accounts ;
-
 --
 -- TOC entry 203 (class 1259 OID 1597267)
 -- Name: activities; Type: TABLE; Schema: public; Owner: postgres
@@ -60,7 +57,6 @@ CREATE TABLE public.activities (
 );
 
 
-ALTER TABLE public.activities;
 
 --
 -- TOC entry 204 (class 1259 OID 1597276)
@@ -80,8 +76,6 @@ CREATE TABLE public.address (
 );
 
 
-ALTER TABLE public.address;
-
 --
 -- TOC entry 205 (class 1259 OID 1597284)
 -- Name: article; Type: TABLE; Schema: public; Owner: postgres
@@ -100,7 +94,6 @@ CREATE TABLE public.article (
 );
 
 
-ALTER TABLE public.article;
 
 --
 -- TOC entry 206 (class 1259 OID 1597294)
@@ -117,8 +110,6 @@ CREATE TABLE public.authorities (
 );
 
 
-ALTER TABLE public.authorities;
-
 --
 -- TOC entry 207 (class 1259 OID 1597302)
 -- Name: authorities_roles; Type: TABLE; Schema: public; Owner: postgres
@@ -129,8 +120,6 @@ CREATE TABLE public.authorities_roles (
     roles_id uuid NOT NULL
 );
 
-
-ALTER TABLE public.authorities_roles;
 
 --
 -- TOC entry 208 (class 1259 OID 1597305)
@@ -148,8 +137,6 @@ CREATE TABLE public.bank_information (
 );
 
 
-ALTER TABLE public.bank_information;
-
 --
 -- TOC entry 209 (class 1259 OID 1597313)
 -- Name: blog_categories; Type: TABLE; Schema: public; Owner: postgres
@@ -164,8 +151,6 @@ CREATE TABLE public.blog_categories (
     slug character varying(255)
 );
 
-
-ALTER TABLE public.blog_categories;
 
 --
 -- TOC entry 210 (class 1259 OID 1597321)
@@ -185,8 +170,6 @@ CREATE TABLE public.box_items (
 );
 
 
-ALTER TABLE public.box_items;
-
 --
 -- TOC entry 211 (class 1259 OID 1597326)
 -- Name: boxes; Type: TABLE; Schema: public; Owner: postgres
@@ -201,8 +184,6 @@ CREATE TABLE public.boxes (
     CONSTRAINT boxes_type_check CHECK (((type)::text = ANY ((ARRAY['NORMAL_BOX'::character varying, 'MYSTERY_BOX'::character varying])::text[])))
 );
 
-
-ALTER TABLE public.boxes;
 
 --
 -- TOC entry 212 (class 1259 OID 1597332)
@@ -219,8 +200,6 @@ CREATE TABLE public.cities (
 );
 
 
-ALTER TABLE public.cities;
-
 --
 -- TOC entry 213 (class 1259 OID 1597337)
 -- Name: commissions; Type: TABLE; Schema: public; Owner: postgres
@@ -236,9 +215,6 @@ CREATE TABLE public.commissions (
     updated_at timestamp(6) with time zone NOT NULL,
     id uuid NOT NULL
 );
-
-
-ALTER TABLE public.commissions;
 
 --
 -- TOC entry 214 (class 1259 OID 1597342)
@@ -257,9 +233,6 @@ CREATE TABLE public.contact (
     last_name character varying(255),
     phone character varying(255)
 );
-
-
-ALTER TABLE public.contact;
 
 --
 -- TOC entry 215 (class 1259 OID 1597350)
@@ -283,9 +256,6 @@ CREATE TABLE public.contracts (
     CONSTRAINT contracts_contract_status_check CHECK (((contract_status)::text = ANY ((ARRAY['IN_PROGRESS'::character varying, 'VALIDATED'::character varying, 'REJECTED'::character varying])::text[])))
 );
 
-
-ALTER TABLE public.contracts;
-
 --
 -- TOC entry 216 (class 1259 OID 1597359)
 -- Name: countries; Type: TABLE; Schema: public; Owner: postgres
@@ -298,9 +268,6 @@ CREATE TABLE public.countries (
     id uuid NOT NULL,
     name character varying(255)
 );
-
-
-ALTER TABLE public.countries;
 
 --
 -- TOC entry 217 (class 1259 OID 1597364)
@@ -320,8 +287,6 @@ CREATE TABLE public.coupons (
 );
 
 
-ALTER TABLE public.coupons;
-
 --
 -- TOC entry 218 (class 1259 OID 1597369)
 -- Name: covered_zones; Type: TABLE; Schema: public; Owner: postgres
@@ -335,9 +300,6 @@ CREATE TABLE public.covered_zones (
     organization_entity_id uuid,
     region_id uuid
 );
-
-
-ALTER TABLE public.covered_zones;
 
 --
 -- TOC entry 219 (class 1259 OID 1597374)
@@ -362,9 +324,6 @@ CREATE TABLE public.deadlines (
     CONSTRAINT deadlines_status_check CHECK (((status)::text = ANY ((ARRAY['PAYED_BY_PARTNER'::character varying, 'CONFIRMED_BY_FOODEALS'::character varying, 'IN_VALID'::character varying])::text[])))
 );
 
-
-ALTER TABLE public.deadlines;
-
 --
 -- TOC entry 220 (class 1259 OID 1597386)
 -- Name: deals; Type: TABLE; Schema: public; Owner: postgres
@@ -380,9 +339,6 @@ CREATE TABLE public.deals (
     id uuid NOT NULL,
     product_id uuid
 );
-
-
-ALTER TABLE public.deals;
 
 --
 -- TOC entry 221 (class 1259 OID 1597391)
@@ -402,8 +358,6 @@ CREATE TABLE public.deletion_reason (
 );
 
 
-ALTER TABLE public.deletion_reason;
-
 --
 -- TOC entry 222 (class 1259 OID 1597401)
 -- Name: deliveries; Type: TABLE; Schema: public; Owner: postgres
@@ -420,9 +374,6 @@ CREATE TABLE public.deliveries (
     id uuid NOT NULL
 );
 
-
-ALTER TABLE public.deliveries;
-
 --
 -- TOC entry 223 (class 1259 OID 1597409)
 -- Name: delivery_positions; Type: TABLE; Schema: public; Owner: postgres
@@ -436,9 +387,6 @@ CREATE TABLE public.delivery_positions (
     updated_at timestamp(6) with time zone NOT NULL,
     id uuid NOT NULL
 );
-
-
-ALTER TABLE public.delivery_positions;
 
 --
 -- TOC entry 224 (class 1259 OID 1597414)
@@ -465,9 +413,6 @@ CREATE TABLE public.donation (
     CONSTRAINT donation_status_check CHECK (((status >= 0) AND (status <= 1)))
 );
 
-
-ALTER TABLE public.donation;
-
 --
 -- TOC entry 225 (class 1259 OID 1597426)
 -- Name: event; Type: TABLE; Schema: public; Owner: postgres
@@ -484,9 +429,6 @@ CREATE TABLE public.event (
     object character varying(255)
 );
 
-
-ALTER TABLE public.event;
-
 --
 -- TOC entry 226 (class 1259 OID 1597434)
 -- Name: event_publication; Type: TABLE; Schema: public; Owner: postgres
@@ -502,8 +444,6 @@ CREATE TABLE public.event_publication (
 );
 
 
-ALTER TABLE public.event_publication;
-
 --
 -- TOC entry 227 (class 1259 OID 1597442)
 -- Name: features; Type: TABLE; Schema: public; Owner: postgres
@@ -517,8 +457,6 @@ CREATE TABLE public.features (
     name character varying(255)
 );
 
-
-ALTER TABLE public.features;
 
 --
 -- TOC entry 228 (class 1259 OID 1597447)
@@ -537,8 +475,6 @@ CREATE TABLE public.notifications (
     title character varying(255)
 );
 
-
-ALTER TABLE public.notifications;
 
 --
 -- TOC entry 229 (class 1259 OID 1597455)
@@ -568,8 +504,6 @@ CREATE TABLE public.offers (
 );
 
 
-ALTER TABLE public.offers;
-
 --
 -- TOC entry 230 (class 1259 OID 1597465)
 -- Name: open_time; Type: TABLE; Schema: public; Owner: postgres
@@ -587,8 +521,6 @@ CREATE TABLE public.open_time (
     start_time character varying(255)
 );
 
-
-ALTER TABLE public.open_time;
 
 --
 -- TOC entry 231 (class 1259 OID 1597473)
@@ -615,8 +547,6 @@ CREATE TABLE public.orders (
 );
 
 
-ALTER TABLE public.orders;
-
 --
 -- TOC entry 232 (class 1259 OID 1597483)
 -- Name: organization_entities; Type: TABLE; Schema: public; Owner: postgres
@@ -639,8 +569,6 @@ CREATE TABLE public.organization_entities (
 );
 
 
-ALTER TABLE public.organization_entities;
-
 --
 -- TOC entry 233 (class 1259 OID 1597498)
 -- Name: organization_entities_activities; Type: TABLE; Schema: public; Owner: postgres
@@ -651,8 +579,6 @@ CREATE TABLE public.organization_entities_activities (
     organization_entities_id uuid NOT NULL
 );
 
-
-ALTER TABLE public.organization_entities_activities;
 
 --
 -- TOC entry 234 (class 1259 OID 1597503)
@@ -665,7 +591,6 @@ CREATE TABLE public.organization_entities_commissions (
 );
 
 
-ALTER TABLE public.organization_entities_commissions;
 
 --
 -- TOC entry 235 (class 1259 OID 1597508)
@@ -678,7 +603,6 @@ CREATE TABLE public.organization_entities_deletion_reasons (
 );
 
 
-ALTER TABLE public.organization_entities_deletion_reasons;
 
 --
 -- TOC entry 236 (class 1259 OID 1597513)
@@ -691,7 +615,6 @@ CREATE TABLE public.organization_entities_features (
 );
 
 
-ALTER TABLE public.organization_entities_features;
 
 --
 -- TOC entry 237 (class 1259 OID 1597518)
@@ -704,7 +627,6 @@ CREATE TABLE public.organization_entities_solutions (
 );
 
 
-ALTER TABLE public.organization_entities_solutions;
 
 --
 -- TOC entry 238 (class 1259 OID 1597523)
@@ -717,7 +639,6 @@ CREATE TABLE public.organization_entities_subscriptions (
 );
 
 
-ALTER TABLE public.organization_entities_subscriptions;
 
 --
 -- TOC entry 239 (class 1259 OID 1597528)
@@ -748,8 +669,6 @@ CREATE TABLE public.partner_commissions (
 );
 
 
-ALTER TABLE public.partner_commissions;
-
 --
 -- TOC entry 240 (class 1259 OID 1597542)
 -- Name: payment; Type: TABLE; Schema: public; Owner: postgres
@@ -772,8 +691,6 @@ CREATE TABLE public.payment (
     CONSTRAINT payment_payment_status_check CHECK (((payment_status)::text = ANY ((ARRAY['IN_VALID'::character varying, 'VALIDATED_BY_PARTNER'::character varying, 'VALIDATED_BY_FOODEALS'::character varying, 'VALIDATED_BY_BOTH'::character varying])::text[])))
 );
 
-
-ALTER TABLE public.payment;
 
 --
 -- TOC entry 241 (class 1259 OID 1597552)
@@ -802,8 +719,6 @@ CREATE TABLE public.payment_method (
 );
 
 
-ALTER TABLE public.payment_method;
-
 --
 -- TOC entry 242 (class 1259 OID 1597560)
 -- Name: product_categories; Type: TABLE; Schema: public; Owner: postgres
@@ -819,8 +734,6 @@ CREATE TABLE public.product_categories (
     slug character varying(255)
 );
 
-
-ALTER TABLE public.product_categories;
 
 --
 -- TOC entry 243 (class 1259 OID 1597568)
@@ -846,9 +759,6 @@ CREATE TABLE public.products (
     CONSTRAINT products_product_type_check CHECK (((product_type >= 0) AND (product_type <= 1)))
 );
 
-
-ALTER TABLE public.products;
-
 --
 -- TOC entry 244 (class 1259 OID 1597577)
 -- Name: prospect; Type: TABLE; Schema: public; Owner: postgres
@@ -870,7 +780,6 @@ CREATE TABLE public.prospect (
 );
 
 
-ALTER TABLE public.prospect;
 
 --
 -- TOC entry 245 (class 1259 OID 1597589)
@@ -883,7 +792,6 @@ CREATE TABLE public.prospect_activities (
 );
 
 
-ALTER TABLE public.prospect_activities;
 
 --
 -- TOC entry 246 (class 1259 OID 1597594)
@@ -896,8 +804,6 @@ CREATE TABLE public.prospect_contacts (
 );
 
 
-ALTER TABLE public.prospect_contacts;
-
 --
 -- TOC entry 247 (class 1259 OID 1597599)
 -- Name: prospect_deletion_reasons; Type: TABLE; Schema: public; Owner: postgres
@@ -908,8 +814,6 @@ CREATE TABLE public.prospect_deletion_reasons (
     prospect_id uuid NOT NULL
 );
 
-
-ALTER TABLE public.prospect_deletion_reasons;
 
 --
 -- TOC entry 248 (class 1259 OID 1597604)
@@ -922,7 +826,6 @@ CREATE TABLE public.prospect_events (
 );
 
 
-ALTER TABLE public.prospect_events;
 
 --
 -- TOC entry 249 (class 1259 OID 1597609)
@@ -934,8 +837,6 @@ CREATE TABLE public.prospect_solutions (
     solutions_id uuid NOT NULL
 );
 
-
-ALTER TABLE public.prospect_solutions;
 
 --
 -- TOC entry 250 (class 1259 OID 1597614)
@@ -951,8 +852,6 @@ CREATE TABLE public.rayon (
 );
 
 
-ALTER TABLE public.rayon;
-
 --
 -- TOC entry 251 (class 1259 OID 1597619)
 -- Name: region; Type: TABLE; Schema: public; Owner: postgres
@@ -966,9 +865,6 @@ CREATE TABLE public.region (
     id uuid NOT NULL,
     name character varying(255)
 );
-
-
-ALTER TABLE public.region;
 
 --
 -- TOC entry 252 (class 1259 OID 1597624)
@@ -984,7 +880,6 @@ CREATE TABLE public.roles (
 );
 
 
-ALTER TABLE public.roles;
 
 --
 -- TOC entry 253 (class 1259 OID 1597629)
@@ -1003,7 +898,6 @@ CREATE TABLE public.solution_contracts (
 );
 
 
-ALTER TABLE public.solution_contracts;
 
 --
 -- TOC entry 254 (class 1259 OID 1597636)
@@ -1018,8 +912,6 @@ CREATE TABLE public.solutions (
     name character varying(255)
 );
 
-
-ALTER TABLE public.solutions;
 
 --
 -- TOC entry 255 (class 1259 OID 1597641)
@@ -1036,7 +928,6 @@ CREATE TABLE public.states (
 );
 
 
-ALTER TABLE public.states;
 
 --
 -- TOC entry 256 (class 1259 OID 1597646)
@@ -1061,7 +952,6 @@ CREATE TABLE public.sub_entities (
 );
 
 
-ALTER TABLE public.sub_entities;
 
 --
 -- TOC entry 257 (class 1259 OID 1597657)
@@ -1074,8 +964,6 @@ CREATE TABLE public.sub_entities_activities (
 );
 
 
-ALTER TABLE public.sub_entities_activities;
-
 --
 -- TOC entry 258 (class 1259 OID 1597662)
 -- Name: sub_entities_commissions; Type: TABLE; Schema: public; Owner: postgres
@@ -1087,7 +975,6 @@ CREATE TABLE public.sub_entities_commissions (
 );
 
 
-ALTER TABLE public.sub_entities_commissions;
 
 --
 -- TOC entry 259 (class 1259 OID 1597667)
@@ -1100,7 +987,6 @@ CREATE TABLE public.sub_entities_contacts (
 );
 
 
-ALTER TABLE public.sub_entities_contacts;
 
 --
 -- TOC entry 260 (class 1259 OID 1597672)
@@ -1113,7 +999,6 @@ CREATE TABLE public.sub_entities_deletion_reasons (
 );
 
 
-ALTER TABLE public.sub_entities_deletion_reasons;
 
 --
 -- TOC entry 261 (class 1259 OID 1597677)
@@ -1126,7 +1011,6 @@ CREATE TABLE public.sub_entities_solutions (
 );
 
 
-ALTER TABLE public.sub_entities_solutions;
 
 --
 -- TOC entry 262 (class 1259 OID 1597682)
@@ -1139,7 +1023,6 @@ CREATE TABLE public.sub_entities_subscriptions (
 );
 
 
-ALTER TABLE public.sub_entities_subscriptions;
 
 --
 -- TOC entry 263 (class 1259 OID 1597687)
@@ -1168,8 +1051,6 @@ CREATE TABLE public.subscription (
 );
 
 
-ALTER TABLE public.subscription;
-
 --
 -- TOC entry 264 (class 1259 OID 1597697)
 -- Name: subscription_solutions; Type: TABLE; Schema: public; Owner: postgres
@@ -1181,7 +1062,6 @@ CREATE TABLE public.subscription_solutions (
 );
 
 
-ALTER TABLE public.subscription_solutions;
 
 --
 -- TOC entry 265 (class 1259 OID 1597702)
@@ -1206,7 +1086,6 @@ CREATE TABLE public.transactions (
 );
 
 
-ALTER TABLE public.transactions;
 
 --
 -- TOC entry 266 (class 1259 OID 1597714)
@@ -1223,7 +1102,6 @@ CREATE TABLE public.user_activities (
 );
 
 
-ALTER TABLE public.user_activities;
 
 --
 -- TOC entry 267 (class 1259 OID 1597719)
@@ -1239,8 +1117,6 @@ CREATE TABLE public.user_contract (
     id uuid NOT NULL
 );
 
-
-ALTER TABLE public.user_contract;
 
 --
 -- TOC entry 268 (class 1259 OID 1597726)
@@ -1279,7 +1155,6 @@ CREATE TABLE public.users (
 );
 
 
-ALTER TABLE public.users;
 
 CREATE TABLE public.user_personal_documents (
     id UUID PRIMARY KEY,
@@ -1291,7 +1166,6 @@ CREATE TABLE public.user_personal_documents (
     deleted_at timestamp(6) with time zone,
     updated_at timestamp(6) with time zone NOT NULL
 );
-ALTER TABLE public.user_personal_documents;
 
 CREATE TABLE public.user_internal_documents (
     id UUID PRIMARY KEY,
@@ -1302,7 +1176,7 @@ CREATE TABLE public.user_internal_documents (
     deleted_at timestamp(6) with time zone,
     updated_at timestamp(6) with time zone NOT NULL
 );
-ALTER TABLE public.user_internal_documents;
+
 
 CREATE TABLE public.absences (
     id UUID PRIMARY KEY,
@@ -1318,7 +1192,7 @@ CREATE TABLE public.absences (
     deleted_at timestamp(6) with time zone,
     updated_at timestamp(6) with time zone NOT NULL
 );
-ALTER TABLE public.absences ;
+
 --
 -- TOC entry 269 (class 1259 OID 1597740)
 -- Name: users_deletion_reasons; Type: TABLE; Schema: public; Owner: postgres
@@ -1329,8 +1203,6 @@ CREATE TABLE public.users_deletion_reasons (
     deletion_reasons_id uuid NOT NULL
 );
 
-
-ALTER TABLE public.users_deletion_reasons;
 
 --
 -- TOC entry 201 (class 1259 OID 1597257)
@@ -1345,7 +1217,6 @@ CREATE SEQUENCE public.users_seq
     CACHE 1;
 
 
-ALTER TABLE public.users_seq;
 
 --
 -- TOC entry 270 (class 1259 OID 1597745)
@@ -1358,7 +1229,6 @@ CREATE TABLE public.users_solutions (
 );
 
 
-ALTER TABLE public.users_solutions ;
 
 --
 -- TOC entry 271 (class 1259 OID 1597750)
@@ -1380,7 +1250,6 @@ CREATE TABLE public.working_hours (
 );
 
 
-ALTER TABLE public.working_hours;
 
 --
 -- TOC entry 3604 (class 0 OID 1597259)
