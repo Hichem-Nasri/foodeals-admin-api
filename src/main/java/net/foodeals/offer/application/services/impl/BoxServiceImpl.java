@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.time.Instant;
 
 @Service
 @Transactional
@@ -44,6 +45,6 @@ class BoxServiceImpl implements BoxService {
         if (!repository.existsById(id))
             throw new BoxNotFoundException(id);
 
-        repository.softDelete(id);
+        repository.softDelete(id, Instant.now());
     }
 }

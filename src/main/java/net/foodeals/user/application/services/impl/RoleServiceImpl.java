@@ -7,7 +7,6 @@ import net.foodeals.user.application.services.RoleService;
 import net.foodeals.user.application.services.FindAllAuthoritiesByIdsUseCase;
 import net.foodeals.user.domain.entities.Authority;
 import net.foodeals.user.domain.entities.Role;
-import net.foodeals.user.domain.exceptions.AuthorityNotFoundException;
 import net.foodeals.user.domain.exceptions.RoleNotFoundException;
 import net.foodeals.user.domain.repositories.RoleRepository;
 import org.modelmapper.ModelMapper;
@@ -15,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -80,8 +80,8 @@ class RoleServiceImpl implements RoleService {
     @Override
     @Transactional
     public void delete(UUID id) {
-        if (repository.existsById(id))
-            throw new AuthorityNotFoundException(id);
-        repository.softDelete(id);
+        if (!repository.existsById(id))
+            throw new RoleNotFoundException(id);
+        repository.softDelete(id, Instant.now());
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,7 +66,7 @@ public class CouponServiceImpl implements CouponService {
         if (!repository.existsById(id))
             throw new CouponNotFoundException(id);
 
-        repository.softDelete(id);
+        repository.softDelete(id, Instant.now());
     }
 
     public Coupon toggleIsEnabled(UUID id) {

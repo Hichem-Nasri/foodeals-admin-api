@@ -11,6 +11,7 @@ import net.foodeals.product.application.services.ProductService;
 import net.foodeals.product.domain.entities.Product;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -51,6 +52,6 @@ class DealServiceImpl implements DealService {
         if (!repository.existsById(id))
                 throw new DealNotFoundException(id);
 
-        repository.softDelete(id);
+        repository.softDelete(id, Instant.now());
     }
 }

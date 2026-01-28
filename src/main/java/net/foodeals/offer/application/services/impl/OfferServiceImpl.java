@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -139,7 +140,7 @@ class OfferServiceImpl implements OfferService {
         if (offerRepository.existsById(id))
             offerRepository.deleteById(id);
 
-        offerRepository.softDelete(id);
+        offerRepository.softDelete(id, Instant.now());
     }
 
     @Override

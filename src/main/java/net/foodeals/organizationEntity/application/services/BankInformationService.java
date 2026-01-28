@@ -6,6 +6,8 @@ import net.foodeals.organizationEntity.domain.repositories.BankInformationReposi
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
 @Service
 public class BankInformationService {
     private final BankInformationRepository bankInformationRepository;
@@ -16,7 +18,7 @@ public class BankInformationService {
 
     @Transactional
     public void delete(BankInformation bankInformation) {
-        this.bankInformationRepository.softDelete(bankInformation.getId());
+        this.bankInformationRepository.softDelete(bankInformation.getId(), Instant.now());
     }
 
     @Transactional

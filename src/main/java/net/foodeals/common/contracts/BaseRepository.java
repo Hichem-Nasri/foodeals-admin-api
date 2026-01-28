@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +43,6 @@ public interface BaseRepository<T, ID> extends JpaRepository<T, ID> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE #{#entityName} e SET e.deletedAt = CURRENT_TIMESTAMP WHERE e.id = :id")
-    void softDelete(ID id);
+    @Query("UPDATE #{#entityName} e SET e.deletedAt = :deletedAt WHERE e.id = :id")
+    void softDelete(@Param("id") ID id, @Param("deletedAt") Instant deletedAt);
 }

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -101,7 +102,7 @@ public class RegionServiceImpl implements RegionService {
     public void delete(UUID uuid) {
         Region region = this.regionRepository.findById(uuid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Region with Id : " + uuid + " not found"));
 
-        this.regionRepository.softDelete(region.getId());
+        this.regionRepository.softDelete(region.getId(), Instant.now());
     }
 
     @Transactional

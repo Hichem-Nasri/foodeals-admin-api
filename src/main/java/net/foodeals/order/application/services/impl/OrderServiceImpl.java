@@ -33,6 +33,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -179,9 +180,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void delete(UUID id) {
-        if (repository.existsById(id))
+        if (!repository.existsById(id))
             throw new OrderNotFoundException(id);
 
-        repository.softDelete(id);
+        repository.softDelete(id, Instant.now());
     }
 }

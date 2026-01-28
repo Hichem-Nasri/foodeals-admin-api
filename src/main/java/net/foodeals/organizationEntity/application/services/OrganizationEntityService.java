@@ -76,6 +76,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -116,7 +117,7 @@ public class OrganizationEntityService {
 
     @Transactional
     public void delete(OrganizationEntity organizationEntity) {
-        this.organizationEntityRepository.softDelete(organizationEntity.getId());
+        this.organizationEntityRepository.softDelete(organizationEntity.getId(), Instant.now());
     }
 
     @Transactional(rollbackOn = Exception.class)

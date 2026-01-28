@@ -17,6 +17,7 @@ import net.foodeals.organizationEntity.domain.repositories.OrganizationEntityRep
 import net.foodeals.payment.domain.entities.PartnerInfo;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -177,7 +178,7 @@ public class SolutionContractService {
 
     @Transactional
     public void delete(SolutionContract solutionContract) {
-        this.solutionContractRepository.softDelete(solutionContract.getId());
+        this.solutionContractRepository.softDelete(solutionContract.getId(), Instant.now());
     }
 
     @Transactional

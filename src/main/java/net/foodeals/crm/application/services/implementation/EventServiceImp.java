@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -138,6 +139,6 @@ public class EventServiceImp implements EventService {
     @Transactional
     public void delete(UUID id) {
         Event event = this.eventRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id.toString()));
-        this.eventRepository.softDelete(event.getId());
+        this.eventRepository.softDelete(event.getId(), Instant.now());
     }
 }

@@ -44,6 +44,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.logging.Filter;
 import java.util.stream.Collectors;
@@ -373,7 +374,7 @@ public class ProspectServiceImp implements ProspectService {
     @Transactional
     public void delete(UUID id) {
         Prospect prospect = this.prospectRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Prospect not found with id: " + id.toString()));
-        this.prospectRepository.softDelete(id);
+        this.prospectRepository.softDelete(id, Instant.now());
     }
 
     //    @Override

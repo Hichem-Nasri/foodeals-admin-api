@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -89,10 +90,10 @@ class CityServiceImpl implements CityService {
     @Override
     @Transactional
     public void delete(UUID id) {
-        if (repository.existsById(id))
+        if (!repository.existsById(id))
             throw new CityNotFoundException(id);
 
-        repository.softDelete(id);
+        repository.softDelete(id, Instant.now());
     }
 
     @Override

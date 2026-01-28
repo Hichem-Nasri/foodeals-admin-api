@@ -1,9 +1,41 @@
 spring:
+  profiles:
+    # Keeps local development "just run" friendly.
+    # In production, set `SPRING_PROFILES_ACTIVE` explicitly.
+    default: local
+
+  application:
+    name: Foodeals
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:}
+    username: ${SPRING_DATASOURCE_USERNAME:}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
+    hikari:
+      auto-commit: false
+
+  jpa:
+    open-in-view: false
+    # Avoid relying on JDBC metadata (e.g. when DB is unreachable at startup).
+    database-platform: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+          time_zone: UTC
+        type:
+          preferred-instant-jdbc-type: TIMESTAMP
+
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: "aabou.zakaria909@gmail.com"
-    password: "cyyv vfqb cpru jxmw"
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
     properties:
       mail:
         transport:
@@ -13,49 +45,17 @@ spring:
           starttls:
             enable: true
 
-  application:
-    name: Foodeals
-  datasource:
-    url: jdbc:postgresql://foodeals.postgres.database.azure.com:5432/postgres?currentSchema=foodeals
-    username: postgres
-    password: P@ssw0rd!Jk7#vQxL
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-      ddl-auto: create
-    show-sql: false
-
 app:
   security:
     jwt:
-      secret-key: 883e807d7ee46bfd82464d697b0e6455d32b8406c6ee3a36e4a97de7ab976196
-
+      # Must be long enough for HS256 (>= 32 bytes).
+      secret-key: ${APP_JWT_SECRET_KEY:dev-foodeals-admin-api-secret-key-change-me-please-32-bytes}
       # 30 days
-      expiration: 2592000000
-
+      expiration: ${APP_JWT_EXPIRATION_MS:2592000000}
       refresh-token:
         # 30 days
-        expiration: 2592000000
-  jpa:
-    properties:
-      hibernate:
-        jdbc:
-          lob:
-            non_contextual_creation: true
-    open-in-view: false
-  datasource:
-    hikari:
-      auto-commit: false
+        expiration: ${APP_JWT_REFRESH_EXPIRATION_MS:2592000000}
 
 logging:
   level:
-    root: ERROR
-
-  jpa:
-    properties:
-      hibernate:
-        type:
-          preferred-instant-jdbc-type: TIMESTAMP
-        jdbc:
-          time_zone: UTC
+    root: ${LOGGING_LEVEL_ROOT:ERROR}

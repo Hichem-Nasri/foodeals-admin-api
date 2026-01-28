@@ -9,6 +9,7 @@ import net.foodeals.organizationEntity.domain.exceptions.AssociationUpdateExcept
 import net.foodeals.organizationEntity.domain.repositories.ContactRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -22,7 +23,7 @@ public class ContactsService {
 
     @Transactional
     public void delete(Contact contact) {
-        this.contactRepository.softDelete(contact.getId());
+        this.contactRepository.softDelete(contact.getId(), Instant.now());
     }
 
     @Transactional
