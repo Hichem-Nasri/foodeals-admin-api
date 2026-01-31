@@ -101,6 +101,12 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
+    @Column(name = "user_type", nullable = false)
+    private Integer userType = 0;
+
+    @Column(name = "raduis", nullable = false)
+    private Integer raduis = 0;
+
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Order> orders = new ArrayList<>();
 
@@ -273,6 +279,24 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
 
     public User setRole(Role role) {
         this.role = role;
+        return this;
+    }
+
+    public Integer getUserType() {
+        return userType;
+    }
+
+    public User setUserType(Integer userType) {
+        this.userType = userType;
+        return this;
+    }
+
+    public Integer getRaduis() {
+        return raduis;
+    }
+
+    public User setRaduis(Integer raduis) {
+        this.raduis = raduis;
         return this;
     }
 

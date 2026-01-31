@@ -1,36 +1,21 @@
 spring:
   application:
-    name: Foodeals
-
+    name: Foodeals Client
   datasource:
-    url: ${SPRING_DATASOURCE_URL:}
-    username: ${SPRING_DATASOURCE_USERNAME:}
-    password: ${SPRING_DATASOURCE_PASSWORD:}
-    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
-    hikari:
-      auto-commit: false
-
+    url: jdbc:postgresql://localhost:5432/foodeals-db
+    username: postgres
+    password: "0000"
+    driver-class-name: org.postgresql.Driver
   jpa:
-    open-in-view: false
-    # Avoid relying on JDBC metadata (e.g. when DB is unreachable at startup).
-    database-platform: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}
-    show-sql: ${SPRING_JPA_SHOW_SQL:false}
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
-    properties:
-      hibernate:
-        jdbc:
-          lob:
-            non_contextual_creation: true
-          time_zone: UTC
-        type:
-          preferred-instant-jdbc-type: TIMESTAMP
-
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: update
+    show-sql: true
   mail:
-    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
-    port: ${SPRING_MAIL_PORT:587}
-    username: ${SPRING_MAIL_USERNAME:}
-    password: ${SPRING_MAIL_PASSWORD:}
+    host: smtp.example.com
+    port: 587
+    username: fake-user
+    password: fake-pass
     properties:
       mail:
         transport:
@@ -43,14 +28,43 @@ spring:
 app:
   security:
     jwt:
-      # Must be long enough for HS256 (>= 32 bytes).
-      secret-key: ${APP_JWT_SECRET_KEY:dev-foodeals-admin-api-secret-key-change-me-please-32-bytes}
-      # 30 days
-      expiration: ${APP_JWT_EXPIRATION_MS:2592000000}
+      secret-key: 883e807d7ee46bfd82464d697b0e6455d32b8406c6ee3a36e4a97de7ab976198
+      # 1 day
+      expiration: 86400000
       refresh-token:
-        # 30 days
-        expiration: ${APP_JWT_REFRESH_EXPIRATION_MS:2592000000}
+        # 7 days
+        expiration: 604800000
 
-logging:
-  level:
-    root: ${LOGGING_LEVEL_ROOT:ERROR}
+servlet:
+  multipart:
+    enabled: true
+    max-file-size: 10MB
+    max-request-size: 10MB
+
+user:
+  dir: C:/Users/nasri/eclipse-workspace/Foodeals-pro/foodeals-pro-api/
+upload:
+
+  directory:
+    photos
+
+
+web:
+  resources:
+    static-locations: file:${user.dir}/${upload.directory}/
+
+
+  security:
+    oauth2:
+      client:
+        registration:
+          facebook:
+            client-id: YOUR_FACEBOOK_APP_ID
+            client-secret: YOUR_FACEBOOK_APP_SECRET
+            redirect-uri: "{baseUrl}/login/oauth2/code/facebook"
+            scope: email,public_profile
+        provider:
+          facebook:
+            authorization-uri: https://www.facebook.com/v17.0/dialog/oauth
+            token-uri: https://graph.facebook.com/v17.0/oauth/access_token
+            user-info-uri: https://graph.facebook.com/me?fields=id,name,email,picture

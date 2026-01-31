@@ -50,7 +50,7 @@ public class OrganizationEntity extends AbstractEntity<UUID> implements DonorInf
     @Column(name = "cover_path")
     private String coverPath;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private EntityType type;
 
     @Builder.Default

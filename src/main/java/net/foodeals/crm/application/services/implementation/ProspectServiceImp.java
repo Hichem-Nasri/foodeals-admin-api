@@ -114,6 +114,7 @@ public class ProspectServiceImp implements ProspectService {
         });
 
         applyPartialProspectUpdate(prospect, dto, true);
+        ensureDraftDefaults(prospect, creator, type);
         Prospect saved = this.prospectRepository.save(prospect);
         return this.modelMapper.map(saved, ProspectResponse.class);
     }
@@ -452,11 +453,25 @@ public class ProspectServiceImp implements ProspectService {
         }
 
         if (dto.responsible() != null) {
+            boolean hasResponsibleData =
+                    (dto.responsible().getName() != null
+                            && (StringUtils.hasText(dto.responsible().getName().firstName())
+                            || StringUtils.hasText(dto.responsible().getName().lastName())))
+                            || StringUtils.hasText(dto.responsible().getEmail())
+                            || StringUtils.hasText(dto.responsible().getPhone());
+            if (!hasResponsibleData) {
+                return;
+            }
             Contact contact;
             if (prospect.getContacts() != null && !prospect.getContacts().isEmpty()) {
                 contact = prospect.getContacts().get(0);
             } else {
                 contact = new Contact();
+                if (prospect.getCreator() != null
+                        && prospect.getCreator().getOrganizationEntity() != null
+                        && contact.getOrganizationEntity() == null) {
+                    contact.setOrganizationEntity(prospect.getCreator().getOrganizationEntity());
+                }
                 if (prospect.getContacts() == null) {
                     prospect.setContacts(new ArrayList<>());
                 }
@@ -552,6 +567,24 @@ public class ProspectServiceImp implements ProspectService {
                 && StringUtils.hasText(address.city())
                 && StringUtils.hasText(address.region())
                 && StringUtils.hasText(address.address());
+    }
+
+    private void ensureDraftDefaults(Prospect prospect, User creator, ProspectType type) {
+        if (prospect.getCreator() == null) {
+            prospect.setCreator(creator);
+        }
+        if (prospect.getType() == null) {
+            prospect.setType(type);
+        }
+        if (prospect.getStatus() == null) {
+            prospect.setStatus(ProspectStatus.DRAFT);
+        }
+        if (!StringUtils.hasText(prospect.getName())) {
+            prospect.setName("Draft");
+        }
+        if (prospect.getLead() == null) {
+            prospect.setLead(creator);
+        }
     }
 
     //    @Override
