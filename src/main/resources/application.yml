@@ -1,9 +1,4 @@
 spring:
-  profiles:
-    # Keeps local development "just run" friendly.
-    # In production, set `SPRING_PROFILES_ACTIVE` explicitly.
-    default: local
-
   application:
     name: Foodeals
 

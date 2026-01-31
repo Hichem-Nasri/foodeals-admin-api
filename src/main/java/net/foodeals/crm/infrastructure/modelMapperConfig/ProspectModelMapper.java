@@ -48,7 +48,14 @@ public class ProspectModelMapper {
         modelMapper.addConverter(mappingContext -> {
             final Prospect prospect = mappingContext.getSource();
 
-            return new PartnerInfoDto(prospect.getId(), prospect.getName(), "", prospect.getAddress().getRegion().getCity().getName());
+            String cityName = "";
+            if (prospect.getAddress() != null
+                    && prospect.getAddress().getRegion() != null
+                    && prospect.getAddress().getRegion().getCity() != null) {
+                cityName = prospect.getAddress().getRegion().getCity().getName();
+            }
+
+            return new PartnerInfoDto(prospect.getId(), prospect.getName(), "", cityName);
         }, Prospect.class, PartnerInfoDto.class);
 
         modelMapper.addConverter(mappingContext -> {
@@ -60,41 +67,58 @@ public class ProspectModelMapper {
 
         this.modelMapper.addConverter(mappingContext -> {
             final Prospect prospect = mappingContext.getSource();
-            OffsetDateTime dateTime = OffsetDateTime.parse(prospect.getCreatedAt().toString());
-            LocalDate date = dateTime.toLocalDate();
+            String createdDate = null;
+            if (prospect.getCreatedAt() != null) {
+                OffsetDateTime dateTime = OffsetDateTime.parse(prospect.getCreatedAt().toString());
+                LocalDate date = dateTime.toLocalDate();
+                createdDate = date.toString();
+            }
 
-            String category = prospect.getActivities().size() > 0 ? prospect.getActivities().iterator().next().getName() : "";
+            String category = (prospect.getActivities() != null && prospect.getActivities().size() > 0)
+                    ? prospect.getActivities().iterator().next().getName()
+                    : "";
 
-            Contact contact = prospect.getContacts().get(0);
+            ContactDto contactInfo = null;
+            if (prospect.getContacts() != null && !prospect.getContacts().isEmpty()) {
+                Contact contact = prospect.getContacts().get(0);
+                if (contact != null) {
+                    contactInfo = new ContactDto(contact.getName(), contact.getEmail(), contact.getPhone());
+                }
+            }
 
-            ContactDto contactInfo = new ContactDto(contact.getName(), contact.getEmail(), contact.getPhone());
-
-            CityResponse cityResponse = this.modelMapper.map(prospect.getAddress().getRegion().getCity(), CityResponse.class);
-            StateResponse stateResponse = this.modelMapper.map(prospect.getAddress().getRegion().getCity().getState(), StateResponse.class);
-            CountryResponse countryResponse = this.modelMapper.map(prospect.getAddress().getRegion().getCity().getState().getCountry(), CountryResponse.class);
-            RegionResponse regionResponse = this.modelMapper.map(prospect.getAddress().getRegion(), RegionResponse.class);
-            String address = prospect.getAddress().getAddress();
-            ProspectAddress addressDto = new ProspectAddress(address, countryResponse, cityResponse, stateResponse, regionResponse, null);
+            ProspectAddress addressDto = null;
+            if (prospect.getAddress() != null
+                    && prospect.getAddress().getRegion() != null
+                    && prospect.getAddress().getRegion().getCity() != null
+                    && prospect.getAddress().getRegion().getCity().getState() != null
+                    && prospect.getAddress().getRegion().getCity().getState().getCountry() != null) {
+                CityResponse cityResponse = this.modelMapper.map(prospect.getAddress().getRegion().getCity(), CityResponse.class);
+                StateResponse stateResponse = this.modelMapper.map(prospect.getAddress().getRegion().getCity().getState(), StateResponse.class);
+                CountryResponse countryResponse = this.modelMapper.map(prospect.getAddress().getRegion().getCity().getState().getCountry(), CountryResponse.class);
+                RegionResponse regionResponse = this.modelMapper.map(prospect.getAddress().getRegion(), RegionResponse.class);
+                String address = prospect.getAddress().getAddress();
+                addressDto = new ProspectAddress(address, countryResponse, cityResponse, stateResponse, regionResponse, null);
+            }
 
             final User creator = prospect.getCreator();
             final User lead = prospect.getLead();
 
-            CreatorInfoDto creatorInfoDto = this.modelMapper.map(creator, CreatorInfoDto.class);
-            ManagerInfoDto managerInfoDto = this.modelMapper.map(lead, ManagerInfoDto.class);
+            CreatorInfoDto creatorInfoDto = creator != null ? this.modelMapper.map(creator, CreatorInfoDto.class) : null;
+            ManagerInfoDto managerInfoDto = lead != null ? this.modelMapper.map(lead, ManagerInfoDto.class) : null;
 
-            List<String> solutionNames = prospect.getSolutions().stream()
-                    .map(Solution::getName)
-                    .collect(Collectors.toList());
+            List<String> solutionNames = prospect.getSolutions() != null
+                    ? prospect.getSolutions().stream().map(Solution::getName).collect(Collectors.toList())
+                    : new ArrayList<>();
 
             ProspectStatus status =  prospect.getStatus();
-            List<EventResponse> eventResponses = prospect.getEvents().size() != 0
+            List<EventResponse> eventResponses = prospect.getEvents() != null && prospect.getEvents().size() != 0
                     ? prospect.getEvents().stream()
                     .filter(event -> event.getDeletedAt() == null)
                     .sorted(Comparator.comparing(Event::getCreatedAt).reversed())
                     .map((Event event) -> this.modelMapper.map(event, EventResponse.class))
                     .toList()
                     : null;
-            return new ProspectResponse(prospect.getId(), date.toString(), prospect.getName(), category, contactInfo, addressDto, creatorInfoDto, managerInfoDto, status, eventResponses, solutionNames, prospect.getType());
+            return new ProspectResponse(prospect.getId(), createdDate, prospect.getName(), category, contactInfo, addressDto, creatorInfoDto, managerInfoDto, status, eventResponses, solutionNames, prospect.getType());
         }, Prospect.class, ProspectResponse.class);
     }
 }

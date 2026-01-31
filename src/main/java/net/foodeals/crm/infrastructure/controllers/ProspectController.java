@@ -50,6 +50,32 @@ public class ProspectController {
     }
 
     @Transactional
+    @GetMapping("/prospects/draft")
+    public ResponseEntity<ProspectResponse> getDraft(@RequestParam("type") ProspectType type) {
+        ProspectResponse draft = this.prospectService.getDraft(type);
+        if (draft == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(draft);
+    }
+
+    @Transactional
+    @PostMapping("/prospects/draft")
+    public ResponseEntity<ProspectResponse> upsertDraft(
+            @RequestParam("type") ProspectType type,
+            @RequestBody PartialProspectRequest prospectRequest
+    ) {
+        return new ResponseEntity<>(this.prospectService.upsertDraft(type, prospectRequest), HttpStatus.OK);
+    }
+
+    @Transactional
+    @DeleteMapping("/prospects/draft")
+    public ResponseEntity<Void> deleteDraft(@RequestParam("type") ProspectType type) {
+        this.prospectService.deleteDraft(type);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Transactional
     @GetMapping("/prospects/{id}")
     public ResponseEntity<ProspectResponse> getById(@PathVariable UUID id) {
         return new ResponseEntity<>(this.prospectService.findById(id), HttpStatus.OK);

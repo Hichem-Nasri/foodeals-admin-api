@@ -43,6 +43,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
@@ -86,7 +87,62 @@ public class ProspectServiceImp implements ProspectService {
     @Override
     @Transactional
     public ProspectResponse partialUpdate(UUID id, PartialProspectRequest dto) {
-        return null;
+        Prospect prospect = this.prospectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Prospect not found with id: " + id.toString()));
+
+        applyPartialProspectUpdate(prospect, dto, false);
+        Prospect updatedProspect = this.prospectRepository.save(prospect);
+        return this.modelMapper.map(updatedProspect, ProspectResponse.class);
+    }
+
+    @Override
+    @Transactional
+    public ProspectResponse upsertDraft(ProspectType type, PartialProspectRequest dto) {
+        User creator = getCurrentUser();
+        Optional<Prospect> existingDraft = this.prospectRepository.findDraftByCreatorAndType(
+                creator,
+                type,
+                ProspectStatus.DRAFT
+        );
+
+        Prospect prospect = existingDraft.orElseGet(() -> {
+            Prospect newDraft = new Prospect();
+            newDraft.setStatus(ProspectStatus.DRAFT);
+            newDraft.setType(type);
+            newDraft.setCreator(creator);
+            return newDraft;
+        });
+
+        applyPartialProspectUpdate(prospect, dto, true);
+        Prospect saved = this.prospectRepository.save(prospect);
+        return this.modelMapper.map(saved, ProspectResponse.class);
+    }
+
+    @Override
+    @Transactional
+    public ProspectResponse getDraft(ProspectType type) {
+        User creator = getCurrentUser();
+        Optional<Prospect> existingDraft = this.prospectRepository.findDraftByCreatorAndType(
+                creator,
+                type,
+                ProspectStatus.DRAFT
+        );
+        if (existingDraft.isEmpty()) {
+            return null;
+        }
+        return this.modelMapper.map(existingDraft.get(), ProspectResponse.class);
+    }
+
+    @Override
+    @Transactional
+    public void deleteDraft(ProspectType type) {
+        User creator = getCurrentUser();
+        Optional<Prospect> existingDraft = this.prospectRepository.findDraftByCreatorAndType(
+                creator,
+                type,
+                ProspectStatus.DRAFT
+        );
+        existingDraft.ifPresent(draft -> this.prospectRepository.softDelete(draft.getId(), Instant.now()));
     }
 
     @Override
@@ -375,6 +431,127 @@ public class ProspectServiceImp implements ProspectService {
     public void delete(UUID id) {
         Prospect prospect = this.prospectRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Prospect not found with id: " + id.toString()));
         this.prospectRepository.softDelete(id, Instant.now());
+    }
+
+    private User getCurrentUser() {
+        final String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return this.userService.findByEmail(email);
+    }
+
+    private void applyPartialProspectUpdate(Prospect prospect, PartialProspectRequest dto, boolean isDraft) {
+        if (dto == null) {
+            return;
+        }
+
+        if (dto.companyName() != null) {
+            prospect.setName(dto.companyName());
+        }
+
+        if (dto.status() != null && !isDraft) {
+            prospect.setStatus(dto.status());
+        }
+
+        if (dto.responsible() != null) {
+            Contact contact;
+            if (prospect.getContacts() != null && !prospect.getContacts().isEmpty()) {
+                contact = prospect.getContacts().get(0);
+            } else {
+                contact = new Contact();
+                if (prospect.getContacts() == null) {
+                    prospect.setContacts(new ArrayList<>());
+                }
+                prospect.getContacts().add(contact);
+            }
+            if (dto.responsible().getName() != null) {
+                contact.setName(dto.responsible().getName());
+            }
+            if (dto.responsible().getEmail() != null) {
+                contact.setEmail(dto.responsible().getEmail());
+            }
+            if (dto.responsible().getPhone() != null) {
+                contact.setPhone(dto.responsible().getPhone());
+            }
+        }
+
+        if (dto.manager_id() != null) {
+            User oldManager = prospect.getLead();
+            if (oldManager != null && oldManager.getManagedProspects() != null) {
+                oldManager.getManagedProspects().remove(prospect);
+            }
+            User manager = this.userService.findById(dto.manager_id());
+            if (manager.getManagedProspects() == null) {
+                manager.setManagedProspects(new ArrayList<>());
+            }
+            manager.getManagedProspects().add(prospect);
+            prospect.setLead(manager);
+        }
+
+        if (dto.activities() != null) {
+            Set<Activity> activities = this.activityService.getActivitiesByName(dto.activities());
+            if (prospect.getActivities() != null) {
+                prospect.getActivities().forEach(activity -> {
+                    if (!activities.contains(activity)) {
+                        activity.getProspects().remove(prospect);
+                    }
+                });
+            }
+            prospect.setActivities(activities);
+            activities.forEach(activity -> activity.getProspects().add(prospect));
+            this.activityService.saveAll(activities);
+        }
+
+        if (dto.solutions() != null) {
+            Set<Solution> solutions = this.solutionService.getSolutionsByNames(dto.solutions());
+            if (prospect.getSolutions() != null) {
+                prospect.getSolutions().forEach(solution -> {
+                    if (!solutions.contains(solution)) {
+                        solution.getProspects().remove(prospect);
+                    }
+                });
+            }
+            prospect.setSolutions(solutions);
+            solutions.forEach(solution -> solution.getProspects().add(prospect));
+            this.solutionService.saveAll(solutions);
+        }
+
+        if (dto.address() != null && isAddressComplete(dto.address())) {
+            Address existingAddress = prospect.getAddress();
+            AddressRequest addressRequest = new AddressRequest(
+                    dto.address().country(),
+                    dto.address().address(),
+                    dto.address().state(),
+                    dto.address().city(),
+                    dto.address().region(),
+                    dto.address().iframe()
+            );
+            if (existingAddress == null) {
+                try {
+                    Address newAddress = this.addressService.create(addressRequest);
+                    prospect.setAddress(newAddress);
+                } catch (RuntimeException ignored) {
+                    if (!isDraft) {
+                        throw ignored;
+                    }
+                }
+            } else {
+                try {
+                    this.addressService.update(existingAddress.getId(), addressRequest);
+                } catch (RuntimeException ignored) {
+                    if (!isDraft) {
+                        throw ignored;
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isAddressComplete(AddressDto address) {
+        return address != null
+                && StringUtils.hasText(address.country())
+                && StringUtils.hasText(address.state())
+                && StringUtils.hasText(address.city())
+                && StringUtils.hasText(address.region())
+                && StringUtils.hasText(address.address());
     }
 
     //    @Override

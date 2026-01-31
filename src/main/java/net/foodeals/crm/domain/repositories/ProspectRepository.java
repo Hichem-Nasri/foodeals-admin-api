@@ -8,6 +8,7 @@ import net.foodeals.crm.domain.entities.enums.ProspectType;
 import net.foodeals.location.domain.entities.City;
 import net.foodeals.location.domain.entities.Region;
 import net.foodeals.organizationEntity.domain.entities.enums.EntityType;
+import net.foodeals.user.domain.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -87,4 +88,15 @@ public interface ProspectRepository extends BaseRepository<Prospect, UUID> {
             "AND LOWER(r.name) LIKE LOWER(CONCAT('%', :regionName, '%')) " +
             "AND LOWER(co.name) = LOWER(:countryName)")
     Page<Region> findRegionsByProspectAddress(@Param("types") List<ProspectType> types, @Param("regionName") String regionName, @Param("countryName") String countryName, Pageable pageable);
+
+    @Query("SELECT p FROM Prospect p " +
+            "WHERE p.creator = :creator " +
+            "AND p.type = :type " +
+            "AND p.status = :status " +
+            "AND p.deletedAt IS NULL")
+    java.util.Optional<Prospect> findDraftByCreatorAndType(
+            @Param("creator") User creator,
+            @Param("type") ProspectType type,
+            @Param("status") ProspectStatus status
+    );
 }

@@ -29,6 +29,10 @@ public interface ProspectService extends CrudService<ProspectResponse, UUID, Pro
 
     ProspectResponse partialUpdate(UUID id, PartialProspectRequest dto);
 
+    ProspectResponse upsertDraft(ProspectType type, PartialProspectRequest dto);
+    ProspectResponse getDraft(ProspectType type);
+    void deleteDraft(ProspectType type);
+
     EventResponse createEvent(UUID id, EventRequest eventRequest);
 
     Page<EventResponse> getEvents(UUID id, Pageable pageable);
