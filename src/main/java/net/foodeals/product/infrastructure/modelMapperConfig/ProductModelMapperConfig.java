@@ -20,15 +20,19 @@ public class ProductModelMapperConfig {
     public void configure() {
         mapper.addConverter(context -> {
             ProductCategory category = context.getSource();
+            ActivityResponse activityResponse = null;
+            if (category.getActivity() != null) {
+                activityResponse = new ActivityResponse(
+                        category.getActivity().getId(),
+                        category.getActivity().getName(),
+                        category.getActivity().getType()
+                );
+            }
             return new ProductCategoryResponse(
                     category.getId(),
                     category.getName(),
                     category.getSlug(),
-                    new ActivityResponse(
-                            category.getActivity().getId(),
-                            category.getActivity().getName(),
-                            category.getActivity().getType()
-                    )
+                    activityResponse
             );
         }, ProductCategory.class, ProductCategoryResponse.class);
 

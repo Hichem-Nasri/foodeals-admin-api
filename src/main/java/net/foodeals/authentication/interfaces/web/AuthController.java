@@ -50,8 +50,8 @@ public class AuthController {
 
     private void addTokenCookie(HttpServletResponse response, String token) {
         Cookie cookie = new Cookie("authjs.session-token", token);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        // cookie.setHttpOnly(true);
+        // cookie.setSecure(true);
         cookie.setMaxAge((int) jwtService.getAccessTokenExpirationSeconds());
         cookie.setPath("/");
         response.addCookie(cookie);

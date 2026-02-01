@@ -46,33 +46,32 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        try {
-            final String jwt = extractJwtFromCookie(request);
-            if (jwt == null || isWhitelistedPath(request.getRequestURI())) {
-                filterChain.doFilter(request, response);
+        final String jwt = extractJwtFromRequest(request);
+        if (jwt != null && !isWhitelistedPath(request.getRequestURI())) {
+            try {
+                final String userEmail = jwtService.extractUsername(jwt);
+                if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                    if (jwtService.isTokenValid(jwt, userDetails)) {
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+                        authToken.setDetails(
+                                new WebAuthenticationDetailsSource().buildDetails(request)
+                        );
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Error occurred while processing JWT: ", e);
+                handleException(response, e);
                 return;
             }
-
-            final String userEmail = jwtService.extractUsername(jwt);
-            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-                if (jwtService.isTokenValid(jwt, userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
-            }
-            filterChain.doFilter(request, response);
-        } catch (Exception e) {
-            logger.error("Error occurred while processing JWT: ", e);
-            handleException(response, e);
         }
+
+        filterChain.doFilter(request, response);
     }
 
     private String extractJwtFromCookie(HttpServletRequest request) {
@@ -87,6 +86,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         return null;
     }
 
+    private String extractJwtFromRequest(HttpServletRequest request) {
+        final String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return extractJwtFromCookie(request);
+    }
+
     private boolean isWhitelistedPath(String requestPath) {
         return WHITE_LIST_PATHS.stream().anyMatch(requestPath::startsWith);
     }
@@ -98,4 +105,3 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         response.getWriter().write(jsonError);
     }
 }
-
