@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "method_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
