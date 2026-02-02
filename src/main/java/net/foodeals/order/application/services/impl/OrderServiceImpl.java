@@ -155,6 +155,9 @@ public class OrderServiceImpl implements OrderService {
         final Offer offer = offerService.findById(request.offerId());
 
         final Order order = Order.create(request.price(), request.type(), request.status(), client, offer);
+        final DonationType donation = request.donation() != null ? request.donation() : DonationType.COMMAND_CLIENT;
+        order.setDonation(donation);
+        order.setSeen(false);
 
         if (request.type().equals(OrderType.DELIVERY)) {
             order

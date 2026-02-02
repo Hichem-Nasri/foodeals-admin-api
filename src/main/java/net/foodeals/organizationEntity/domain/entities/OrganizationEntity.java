@@ -107,6 +107,10 @@ public class OrganizationEntity extends AbstractEntity<UUID> implements DonorInf
     @OneToMany(mappedBy = "organizationEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CoveredZones> coveredZones = new ArrayList<>();
 
+    @Lob
+    @Column(name = "draft_payload")
+    private String draftPayload;
+
     @Override
     public UUID getId() {
         return this.id;

@@ -339,6 +339,16 @@ public class ContractService {
     @Transactional
     public void update(Contract contract, CreateAnOrganizationEntityDto updateOrganizationEntityDto) throws Exception {
         try {
+            if (contract.getUserContracts() == null && updateOrganizationEntityDto.getManagerId() != null) {
+                User user = this.userService.findById(updateOrganizationEntityDto.getManagerId());
+                UserContract userContract = UserContract.builder()
+                        .user(user)
+                        .contract(contract)
+                        .build();
+                this.userContractService.save(userContract);
+                contract.setUserContracts(userContract);
+            }
+
             if (updateOrganizationEntityDto.getMaxNumberOfSubEntities() != null) {
                 contract.setMaxNumberOfSubEntities(updateOrganizationEntityDto.getMaxNumberOfSubEntities());
             }
@@ -353,7 +363,9 @@ public class ContractService {
 
             contract.setSubscriptionPayedBySubEntities(updateOrganizationEntityDto.getSubscriptionPayedBySubEntities());
 
-            if (updateOrganizationEntityDto.getManagerId() != null && updateOrganizationEntityDto.getManagerId() != contract.getUserContracts().getUser().getId()) {
+            if (updateOrganizationEntityDto.getManagerId() != null
+                    && contract.getUserContracts() != null
+                    && updateOrganizationEntityDto.getManagerId() != contract.getUserContracts().getUser().getId()) {
                 this.userContractService.updateUserContract(contract.getUserContracts(), updateOrganizationEntityDto);
             }
 

@@ -229,7 +229,13 @@ public class OrganizationEntityModelMapper {
             OffsetDateTime dateTime = OffsetDateTime.parse(organizationEntity.getCreatedAt().toString());
             LocalDate date = dateTime.toLocalDate();
 
-            PartnerInfoDto partnerInfoDto = new PartnerInfoDto(organizationEntity.getId(), organizationEntity.getName(), organizationEntity.getAvatarPath(), organizationEntity.getAddress().getRegion().getCity().getName());
+            String city = "";
+            if (organizationEntity.getAddress() != null
+                    && organizationEntity.getAddress().getRegion() != null
+                    && organizationEntity.getAddress().getRegion().getCity() != null) {
+                city = organizationEntity.getAddress().getRegion().getCity().getName();
+            }
+            PartnerInfoDto partnerInfoDto = new PartnerInfoDto(organizationEntity.getId(), organizationEntity.getName(), organizationEntity.getAvatarPath(), city);
             Optional<User> responsible = organizationEntity.getUsers().stream()
                     .filter(user -> user.getRole().getName().equals("MANAGER"))
                     .findFirst();
@@ -241,7 +247,7 @@ public class OrganizationEntityModelMapper {
                     responsibleInfoDto.setAvatarPath(user.getAvatarPath());
                     responsibleInfoDto.setPhone(user.getPhone());
                     responsibleInfoDto.setEmail(user.getEmail());
-            } else {
+            } else if (!organizationEntity.getContacts().isEmpty()) {
                 Contact user = organizationEntity.getContacts().get(0);
                 responsibleInfoDto.setName(user.getName());
                 responsibleInfoDto.setAvatarPath("");
@@ -254,8 +260,7 @@ public class OrganizationEntityModelMapper {
                     .map(solution -> solution.getName())
                     .collect(Collectors.toList());
 
-            String city = organizationEntity.getAddress().getRegion().getCity().getName();
-            ContractStatus contractStatus = organizationEntity.getContract().getContractStatus();
+            ContractStatus contractStatus = organizationEntity.getContract() != null ? organizationEntity.getContract().getContractStatus() : null;
             Integer users = organizationEntity.getUsers().size();
 
             Integer subEntities = this.subEntityService.countByOrganizationEntity_IdAndType(
@@ -297,7 +302,7 @@ public class OrganizationEntityModelMapper {
         mapper.addConverter(mappingContext -> {
             OrganizationEntity organizationEntity = mappingContext.getSource();
             OrganizationEntityDto organizationEntityDto = new OrganizationEntityDto();
-            organizationEntityDto.setContractStatus(organizationEntity.getContract().getContractStatus());
+            organizationEntityDto.setContractStatus(organizationEntity.getContract() != null ? organizationEntity.getContract().getContractStatus() : null);
 
             OffsetDateTime dateTime = OffsetDateTime.parse(organizationEntity.getCreatedAt().toString());
             LocalDate date = dateTime.toLocalDate();
@@ -310,14 +315,19 @@ public class OrganizationEntityModelMapper {
                 ContactDto contactDto = new ContactDto(contact.getName(), contact.getEmail(), contact.getPhone());
                 organizationEntityDto.setContactDto(contactDto);
             });
-            PartnerInfoDto partnerInfoDto = new PartnerInfoDto(organizationEntity.getId(), organizationEntity.getName(), organizationEntity.getAvatarPath(), organizationEntity.getAddress().getRegion().getCity().getName());
+            String city = "";
+            if (organizationEntity.getAddress() != null
+                    && organizationEntity.getAddress().getRegion() != null
+                    && organizationEntity.getAddress().getRegion().getCity() != null) {
+                city = organizationEntity.getAddress().getRegion().getCity().getName();
+            }
+            PartnerInfoDto partnerInfoDto = new PartnerInfoDto(organizationEntity.getId(), organizationEntity.getName(), organizationEntity.getAvatarPath(), city);
             organizationEntityDto.setPartnerInfoDto(partnerInfoDto);
             Long offers = this.offerService.countByPublisherId(organizationEntity.getId());
             Long orders = this.offerService.countOrdersByPublisherInfoId(organizationEntity.getId());
             Long users = Long.valueOf(organizationEntity.getUsers().size());
             Long subEntities = Long.valueOf(organizationEntity.getSubEntities().size());
             EntityType type = organizationEntity.getType();
-            String city = organizationEntity.getAddress().getRegion().getCity().getName();
             List<String> solutions = organizationEntity.getSolutions().stream().map(s -> s.getName()).toList();
             organizationEntityDto.setOffers(offers);
             organizationEntityDto.setOrders(orders);
@@ -415,7 +425,13 @@ public class OrganizationEntityModelMapper {
 
     @Transactional
     public PartnerInfoDto convertToPartnerInfoDto(OrganizationEntity organizationEntity) {
-        return new PartnerInfoDto(organizationEntity.getId(), organizationEntity.getName(), organizationEntity.getAvatarPath(), organizationEntity.getAddress().getRegion().getCity().getName());
+        String city = "";
+        if (organizationEntity.getAddress() != null
+                && organizationEntity.getAddress().getRegion() != null
+                && organizationEntity.getAddress().getRegion().getCity() != null) {
+            city = organizationEntity.getAddress().getRegion().getCity().getName();
+        }
+        return new PartnerInfoDto(organizationEntity.getId(), organizationEntity.getName(), organizationEntity.getAvatarPath(), city);
     }
 
     @Transactional
@@ -435,27 +451,34 @@ public class OrganizationEntityModelMapper {
         DeliveryPartnerDto deliveryPartnerDto = DeliveryPartnerDto.builder().createdAt(date.toString())
                 .build();
 
+        String city = "";
+        if (organizationEntity.getAddress() != null
+                && organizationEntity.getAddress().getRegion() != null
+                && organizationEntity.getAddress().getRegion().getCity() != null) {
+            city = organizationEntity.getAddress().getRegion().getCity().getName();
+        }
+
         PartnerInfoDto  partnerInfoDto = PartnerInfoDto.builder().id(organizationEntity.getId()).name(organizationEntity.getName())
                 .avatarPath(organizationEntity.getAvatarPath())
-                .city(organizationEntity.getAddress().getRegion().getCity().getName())
+                .city(city)
                 .build();
         deliveryPartnerDto.setId(organizationEntity.getId());
         deliveryPartnerDto.setEntityType(organizationEntity.getType());
         deliveryPartnerDto.setPartnerInfoDto(partnerInfoDto);
 
         User manager = organizationEntity.getUsers().stream().filter(user -> user.getRole().getName().equals("MANAGER")).findFirst().orElse(null);
-        Contact contact = organizationEntity.getContacts().get(0);
-        Name name = manager != null ? manager.getName() : contact.getName();
+        Contact contact = organizationEntity.getContacts().isEmpty() ? null : organizationEntity.getContacts().get(0);
+        Name name = manager != null ? manager.getName() : contact != null ? contact.getName() : new Name("", "");
         String avatarPath = manager != null ? manager.getAvatarPath() : "";
-        String phone = manager != null ? manager.getPhone() : contact.getPhone();
-        String email = manager != null ? manager.getEmail() : contact.getEmail();
+        String phone = manager != null ? manager.getPhone() : contact != null ? contact.getPhone() : "";
+        String email = manager != null ? manager.getEmail() : contact != null ? contact.getEmail() : "";
 
         ResponsibleInfoDto responsibleInfoDto = ResponsibleInfoDto.builder().name(name)
                 .avatarPath(avatarPath)
                 .phone(phone)
                 .email(email)
                 .build();
-        deliveryPartnerDto.setStatus(organizationEntity.getContract().getContractStatus());
+        deliveryPartnerDto.setStatus(organizationEntity.getContract() != null ? organizationEntity.getContract().getContractStatus() : null);
 
         deliveryPartnerDto.setResponsibleInfoDto(responsibleInfoDto);
 
@@ -467,11 +490,21 @@ public class OrganizationEntityModelMapper {
         deliveryPartnerDto.setNumberOfDeliveryPeople(numberOfDeliveryPeople);
         List<String> solutionsNames = organizationEntity.getSolutions().stream().map(solution -> solution.getName()).toList();
         deliveryPartnerDto.setSolutions(solutionsNames);
-        int numberOfCoveredCities = organizationEntity.getCoveredZones().stream().map(coveredZone -> coveredZone.getRegion().getCity().getName()).collect(Collectors.toSet()).size();
-        int totalNumberOfCities = this.countryService.countTotalCitiesByCountryName(organizationEntity.getAddress().getRegion().getCity().getState().getCountry().getName());
-
-        DistributionType distribution = totalNumberOfCities == numberOfCoveredCities ? DistributionType.EVERYWHERE : DistributionType.MULTI_CITY;
-        deliveryPartnerDto.setDistribution(distribution);
+        if (organizationEntity.getAddress() != null
+                && organizationEntity.getAddress().getRegion() != null
+                && organizationEntity.getAddress().getRegion().getCity() != null
+                && organizationEntity.getAddress().getRegion().getCity().getState() != null
+                && organizationEntity.getAddress().getRegion().getCity().getState().getCountry() != null) {
+            int numberOfCoveredCities = organizationEntity.getCoveredZones().stream()
+                    .filter(coveredZone -> coveredZone.getRegion() != null && coveredZone.getRegion().getCity() != null)
+                    .map(coveredZone -> coveredZone.getRegion().getCity().getName())
+                    .collect(Collectors.toSet()).size();
+            int totalNumberOfCities = this.countryService.countTotalCitiesByCountryName(
+                    organizationEntity.getAddress().getRegion().getCity().getState().getCountry().getName()
+            );
+            DistributionType distribution = totalNumberOfCities == numberOfCoveredCities ? DistributionType.EVERYWHERE : DistributionType.MULTI_CITY;
+            deliveryPartnerDto.setDistribution(distribution);
+        }
         return deliveryPartnerDto;
     }
 

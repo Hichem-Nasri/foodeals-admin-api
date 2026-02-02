@@ -31,7 +31,24 @@ public class DatabaseConstraintFixer {
             logger.warn("Failed to update organization_entities_type_check: {}", e.getMessage());
         }
 
+        ensureContractStatusConstraint();
         ensurePaymentMethodDiscriminator();
+    }
+
+    private void ensureContractStatusConstraint() {
+        try {
+            jdbcTemplate.execute(
+                    "ALTER TABLE contracts DROP CONSTRAINT IF EXISTS contracts_contract_status_check"
+            );
+            jdbcTemplate.execute(
+                    "ALTER TABLE contracts " +
+                            "ADD CONSTRAINT contracts_contract_status_check " +
+                            "CHECK (contract_status IN ('DRAFT','IN_PROGRESS','VALIDATED','REJECTED'))"
+            );
+            logger.info("contracts_contract_status_check updated to allow DRAFT status");
+        } catch (Exception e) {
+            logger.warn("Failed to update contracts_contract_status_check: {}", e.getMessage());
+        }
     }
 
     private void ensurePaymentMethodDiscriminator() {

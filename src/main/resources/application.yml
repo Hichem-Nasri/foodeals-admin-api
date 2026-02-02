@@ -12,10 +12,10 @@ spring:
       ddl-auto: update
     show-sql: true
   mail:
-    host: smtp.example.com
+    host: smtp.gmail.com
     port: 587
-    username: fake-user
-    password: fake-pass
+    username: "banasstaib@gmail.com"
+    password: "enrg ppob jjjo jizs"
     properties:
       mail:
         transport:
@@ -45,11 +45,9 @@ user:
 upload:
   directory: photos
 
-
 web:
   resources:
     static-locations: file:${user.dir}/${upload.directory}/
-
 
   security:
     oauth2:

@@ -31,13 +31,19 @@ import net.foodeals.offer.domain.entities.PublisherInfo;
 import net.foodeals.offer.domain.repositories.OfferRepository;
 import net.foodeals.order.domain.entities.Order;
 import net.foodeals.order.domain.entities.Transaction;
+import net.foodeals.order.domain.enums.DonationType;
 import net.foodeals.order.domain.enums.OrderStatus;
+import net.foodeals.order.domain.enums.OrderType;
 import net.foodeals.order.domain.enums.TransactionStatus;
 import net.foodeals.order.domain.enums.TransactionType;
 import net.foodeals.order.domain.repositories.OrderRepository;
 import net.foodeals.organizationEntity.application.dtos.requests.CoveredZonesDto;
 import net.foodeals.organizationEntity.application.dtos.requests.CreateAnOrganizationEntityDto;
 import net.foodeals.organizationEntity.application.dtos.requests.CreateAssociationDto;
+import net.foodeals.organizationEntity.application.dtos.requests.PartnerDraftRequest;
+import net.foodeals.organizationEntity.application.dtos.responses.EntityFormDataAddress;
+import net.foodeals.organizationEntity.application.dtos.responses.OrganizationEntityFormData;
+import net.foodeals.organizationEntity.application.dtos.responses.PartnerDraftResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.OrganizationEntityFilter;
 import net.foodeals.organizationEntity.domain.entities.*;
 import net.foodeals.organizationEntity.domain.entities.enums.EntityType;
@@ -57,11 +63,12 @@ import net.foodeals.product.domain.repositories.RayonRepository;
 import net.foodeals.schedule.utils.PartnerCommissionsUtil;
 import net.foodeals.user.application.dtos.requests.UserAddress;
 import net.foodeals.user.application.dtos.requests.UserRequest;
-import net.foodeals.user.application.services.RoleService;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.Role;
+import net.foodeals.user.application.dtos.responses.UserInfoDto;
 import net.foodeals.user.domain.entities.User;
 import net.foodeals.user.domain.valueObjects.Name;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.coyote.BadRequestException;
 import org.apache.velocity.exception.ResourceNotFoundException;
@@ -95,7 +102,6 @@ public class OrganizationEntityService {
     private final AddressService addressService;
     private final ContactsService contactsService;
     private final UserService userService;
-    private final RoleService roleService;
     private final EmailService emailService;
     private final CoveredZonesService coveredZonesService;
     private final CountryService countryService;
@@ -108,6 +114,7 @@ public class OrganizationEntityService {
     private final DeliveryRepository deliveryRepository;
     private final RayonRepository rayonService;
     private final AccountValidationService accountValidationService;
+    private final ObjectMapper objectMapper;
 
 
     @Transactional
@@ -298,9 +305,275 @@ public class OrganizationEntityService {
                     break;
                 default:
             }
+            if (organizationEntity.getContract() != null
+                    && organizationEntity.getContract().getContractStatus() == ContractStatus.DRAFT) {
+                organizationEntity.getContract().setContractStatus(ContractStatus.IN_PROGRESS);
+                this.contractService.save(organizationEntity.getContract());
+            }
+            organizationEntity.setDraftPayload(null);
             return organizationEntity;
         } catch (Exception e) {
             throw new Exception("Failed to update organization entity: ");
+        }
+    }
+
+    @Transactional
+    public PartnerDraftResponse upsertPartnerDraft(UUID id, PartnerDraftRequest draftRequest) {
+        OrganizationEntity organizationEntity = null;
+        if (id != null) {
+            organizationEntity = this.organizationEntityRepository.findById(id).orElse(null);
+        }
+        if (organizationEntity == null) {
+            organizationEntity = createDraftSkeleton(draftRequest);
+        }
+        applyDraftData(organizationEntity, draftRequest);
+        organizationEntity.getContract().setContractStatus(ContractStatus.DRAFT);
+        try {
+            organizationEntity.setDraftPayload(this.objectMapper.writeValueAsString(draftRequest));
+        } catch (JsonProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to store draft payload");
+        }
+        OrganizationEntity saved = this.organizationEntityRepository.save(organizationEntity);
+        return new PartnerDraftResponse(saved.getId(), saved.getContract().getContractStatus());
+    }
+
+    @Transactional
+    public OrganizationEntityFormData buildDraftFormData(OrganizationEntity organizationEntity) {
+        if (organizationEntity.getDraftPayload() == null) {
+            return null;
+        }
+        try {
+            PartnerDraftRequest draftRequest = this.objectMapper.readValue(
+                    organizationEntity.getDraftPayload(),
+                    PartnerDraftRequest.class
+            );
+            OrganizationEntityFormData formData = new OrganizationEntityFormData();
+            formData.setEntityType(draftRequest.getEntityType() != null ? draftRequest.getEntityType() : organizationEntity.getType());
+            formData.setEntityName(draftRequest.getEntityName() != null ? draftRequest.getEntityName() : organizationEntity.getName());
+            formData.setCommissionPayedBySubEntities(draftRequest.getCommissionPayedBySubEntities());
+            formData.setSolutions(draftRequest.getSolutions());
+            formData.setFeatures(draftRequest.getFeatures());
+            formData.setCommercialNumber(draftRequest.getCommercialNumber() != null ? draftRequest.getCommercialNumber() : organizationEntity.getCommercialNumber());
+            formData.setContactDto(draftRequest.getContactDto());
+            formData.setActivities(draftRequest.getActivities());
+            formData.setMaxNumberOfSubEntities(draftRequest.getMaxNumberOfSubEntities());
+            formData.setMaxNumberOfAccounts(draftRequest.getMaxNumberOfAccounts());
+            formData.setMinimumReduction(draftRequest.getMinimumReduction());
+            formData.setSolutionsContractDto(draftRequest.getSolutionsContractDto());
+            formData.setOneSubscription(draftRequest.getOneSubscription());
+            formData.setEntityBankInformationDto(draftRequest.getEntityBankInformationDto());
+            formData.setStatus(ContractStatus.DRAFT);
+            formData.setSubscriptionPayedBySubEntities(Boolean.TRUE.equals(draftRequest.getSubscriptionPayedBySubEntities()));
+
+            if (draftRequest.getEntityAddressDto() != null) {
+                EntityFormDataAddress address = new EntityFormDataAddress();
+                address.setAddress(draftRequest.getEntityAddressDto().getAddress());
+                address.setIframe(draftRequest.getEntityAddressDto().getIframe());
+                if (draftRequest.getEntityAddressDto().getCountry() != null) {
+                    address.setCountry(new net.foodeals.location.application.dtos.responses.CountryResponse(null, draftRequest.getEntityAddressDto().getCountry()));
+                }
+                if (draftRequest.getEntityAddressDto().getState() != null) {
+                    address.setState(new net.foodeals.location.application.dtos.responses.StateResponse(null, draftRequest.getEntityAddressDto().getState()));
+                }
+                if (draftRequest.getEntityAddressDto().getCity() != null) {
+                    address.setCity(new net.foodeals.location.application.dtos.responses.CityResponse(null, draftRequest.getEntityAddressDto().getCity()));
+                }
+                if (draftRequest.getEntityAddressDto().getRegion() != null) {
+                    address.setRegion(new net.foodeals.location.application.dtos.responses.RegionResponse(null, draftRequest.getEntityAddressDto().getRegion()));
+                }
+                formData.setEntityAddressDto(address);
+            }
+
+            if (draftRequest.getManagerId() != null) {
+                try {
+                    User manager = this.userService.findById(draftRequest.getManagerId());
+                    String city = null;
+                    String region = null;
+                    if (manager != null && manager.getAddress() != null && manager.getAddress().getRegion() != null) {
+                        region = manager.getAddress().getRegion().getName();
+                        if (manager.getAddress().getRegion().getCity() != null) {
+                            city = manager.getAddress().getRegion().getCity().getName();
+                        }
+                    }
+                    if (manager != null) {
+                        UserInfoDto managerInfo = new UserInfoDto(
+                                manager.getCreatedAt() != null ? manager.getCreatedAt().toString() : null,
+                                manager.getId(),
+                                manager.getRole() != null ? manager.getRole().getName() : null,
+                                manager.getName(),
+                                city,
+                                region,
+                                manager.getAvatarPath(),
+                                manager.getEmail(),
+                                manager.getPhone()
+                        );
+                        formData.setManager(managerInfo);
+                    }
+                } catch (Exception ignored) {
+                    // Ignore missing manager during draft retrieval.
+                }
+            }
+
+            return formData;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to read draft payload");
+        }
+    }
+
+    private OrganizationEntity createDraftSkeleton(PartnerDraftRequest draftRequest) {
+        OrganizationEntity organizationEntity = new OrganizationEntity();
+        organizationEntity.setName(draftRequest.getEntityName());
+        organizationEntity.setType(
+                draftRequest.getEntityType() != null ? draftRequest.getEntityType() : EntityType.NORMAL_PARTNER
+        );
+
+        Address address = new Address();
+        organizationEntity.setAddress(address);
+
+        BankInformation bankInformation = new BankInformation();
+        organizationEntity.setBankInformation(bankInformation);
+
+        Contact contact = new Contact();
+        contact.setName(draftRequest.getContactDto() != null ? draftRequest.getContactDto().getName() : new Name("", ""));
+        contact.setEmail(draftRequest.getContactDto() != null ? draftRequest.getContactDto().getEmail() : "");
+        contact.setPhone(draftRequest.getContactDto() != null ? draftRequest.getContactDto().getPhone() : "");
+        contact.setOrganizationEntity(organizationEntity);
+        organizationEntity.getContacts().add(contact);
+
+        Contract contract = new Contract();
+        contract.setContractStatus(ContractStatus.DRAFT);
+        contract.setOrganizationEntity(organizationEntity);
+        organizationEntity.setContract(contract);
+
+        return organizationEntity;
+    }
+
+    private void applyDraftData(OrganizationEntity organizationEntity, PartnerDraftRequest draftRequest) {
+        if (draftRequest.getEntityType() != null) {
+            organizationEntity.setType(draftRequest.getEntityType());
+        }
+        if (draftRequest.getEntityName() != null) {
+            organizationEntity.setName(draftRequest.getEntityName());
+        }
+        if (draftRequest.getCommercialNumber() != null) {
+            organizationEntity.setCommercialNumber(draftRequest.getCommercialNumber());
+        }
+
+        if (draftRequest.getContactDto() != null) {
+            Contact contact = organizationEntity.getContacts().isEmpty()
+                    ? new Contact()
+                    : organizationEntity.getContacts().get(0);
+            if (contact.getOrganizationEntity() == null) {
+                contact.setOrganizationEntity(organizationEntity);
+            }
+            if (draftRequest.getContactDto().getName() != null) {
+                contact.setName(draftRequest.getContactDto().getName());
+            }
+            if (draftRequest.getContactDto().getEmail() != null) {
+                contact.setEmail(draftRequest.getContactDto().getEmail());
+            }
+            if (draftRequest.getContactDto().getPhone() != null) {
+                contact.setPhone(draftRequest.getContactDto().getPhone());
+            }
+            if (organizationEntity.getContacts().isEmpty()) {
+                organizationEntity.getContacts().add(contact);
+            }
+        }
+
+        if (draftRequest.getEntityAddressDto() != null) {
+            Address address = organizationEntity.getAddress() != null ? organizationEntity.getAddress() : new Address();
+            if (draftRequest.getEntityAddressDto().getAddress() != null) {
+                address.setAddress(draftRequest.getEntityAddressDto().getAddress());
+            }
+            if (draftRequest.getEntityAddressDto().getIframe() != null) {
+                address.setIframe(draftRequest.getEntityAddressDto().getIframe());
+            }
+            if (draftRequest.getEntityAddressDto().getCountry() != null
+                    && draftRequest.getEntityAddressDto().getState() != null
+                    && draftRequest.getEntityAddressDto().getCity() != null
+                    && draftRequest.getEntityAddressDto().getRegion() != null) {
+                try {
+                    Country country = this.countryService.findByName(draftRequest.getEntityAddressDto().getCountry().toLowerCase());
+                    if (country != null) {
+                        State state = country.getStates().stream()
+                                .filter(s -> s.getName().equals(draftRequest.getEntityAddressDto().getState().toLowerCase()))
+                                .findFirst()
+                                .orElse(null);
+                        if (state != null) {
+                            City city = state.getCities().stream()
+                                    .filter(c -> c.getName().equals(draftRequest.getEntityAddressDto().getCity().toLowerCase()))
+                                    .findFirst()
+                                    .orElse(null);
+                            if (city != null) {
+                                Region region = city.getRegions().stream()
+                                        .filter(r -> r.getName().equals(draftRequest.getEntityAddressDto().getRegion().toLowerCase()))
+                                        .findFirst()
+                                        .orElse(null);
+                                address.setRegion(region);
+                            }
+                        }
+                    }
+                } catch (Exception ignored) {
+                    // Keep draft save tolerant to partial address inputs.
+                }
+            }
+            organizationEntity.setAddress(address);
+        }
+
+        if (draftRequest.getEntityBankInformationDto() != null) {
+            BankInformation bankInformation = organizationEntity.getBankInformation() != null
+                    ? organizationEntity.getBankInformation()
+                    : new BankInformation();
+            if (draftRequest.getEntityBankInformationDto().getBeneficiaryName() != null) {
+                bankInformation.setBeneficiaryName(draftRequest.getEntityBankInformationDto().getBeneficiaryName());
+            }
+            if (draftRequest.getEntityBankInformationDto().getBankName() != null) {
+                bankInformation.setBankName(draftRequest.getEntityBankInformationDto().getBankName());
+            }
+            if (draftRequest.getEntityBankInformationDto().getRib() != null) {
+                bankInformation.setRib(draftRequest.getEntityBankInformationDto().getRib());
+            }
+            organizationEntity.setBankInformation(bankInformation);
+        }
+
+        if (draftRequest.getSolutions() != null) {
+            Set<Solution> solutions = this.solutionService.getSolutionsByNames(draftRequest.getSolutions());
+            organizationEntity.setSolutions(solutions);
+        }
+        if (draftRequest.getActivities() != null) {
+            Set<Activity> activities = this.activityService.getActivitiesByName(draftRequest.getActivities());
+            organizationEntity.setActivities(activities);
+        }
+        if (draftRequest.getFeatures() != null) {
+            Set<Features> features = this.featureService.findFeaturesByNames(draftRequest.getFeatures());
+            organizationEntity.setFeatures(features);
+        }
+
+        if (organizationEntity.getContract() == null) {
+            Contract contract = new Contract();
+            contract.setContractStatus(ContractStatus.DRAFT);
+            contract.setOrganizationEntity(organizationEntity);
+            organizationEntity.setContract(contract);
+        }
+
+        Contract contract = organizationEntity.getContract();
+        if (draftRequest.getMaxNumberOfSubEntities() != null) {
+            contract.setMaxNumberOfSubEntities(draftRequest.getMaxNumberOfSubEntities());
+        }
+        if (draftRequest.getMaxNumberOfAccounts() != null) {
+            contract.setMaxNumberOfAccounts(draftRequest.getMaxNumberOfAccounts());
+        }
+        if (draftRequest.getMinimumReduction() != null) {
+            contract.setMinimumReduction(draftRequest.getMinimumReduction());
+        }
+        if (draftRequest.getCommissionPayedBySubEntities() != null) {
+            contract.setCommissionPayedBySubEntities(draftRequest.getCommissionPayedBySubEntities());
+        }
+        if (draftRequest.getSubscriptionPayedBySubEntities() != null) {
+            contract.setSubscriptionPayedBySubEntities(draftRequest.getSubscriptionPayedBySubEntities());
+        }
+        if (draftRequest.getOneSubscription() != null) {
+            contract.setSingleSubscription(draftRequest.getOneSubscription());
         }
     }
 
@@ -421,50 +694,45 @@ public class OrganizationEntityService {
 
     @Transactional(rollbackOn = Exception.class)
     public String validateOrganizationEntity(UUID id, MultipartFile document) throws Exception {
-        try {
-            OrganizationEntity organizationEntity = this.organizationEntityRepository.findById(id).orElse(null);
+        OrganizationEntity organizationEntity = this.organizationEntityRepository.findById(id).orElse(null);
 
-            if (organizationEntity == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Organization Entity not found");
-            }
-            Contact managerContact = organizationEntity.getContacts().get(0);
-
-            Role role = this.roleService.findByName("MANAGER");
-            String pass = RandomStringUtils.random(12, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-            UserRequest userRequest = new UserRequest(managerContact.getName(), managerContact.getEmail(), managerContact.getPhone(), RandomStringUtils.random(12), false, "MANAGER", organizationEntity.getId());
-            User manager = this.userService.create(userRequest);
-            if (!organizationEntity.getType().equals(EntityType.FOOD_BANK) && !organizationEntity.getType().equals(EntityType.ASSOCIATION)) {
-                Solution pro_market = this.solutionService.findByName("pro_market");
-                if (organizationEntity.getType().equals(EntityType.DELIVERY_PARTNER) || organizationEntity.getSolutions().contains(pro_market)) {
-                    Date date = new Date();
-                    PartnerCommissions partnerCommissions = PartnerCommissions.builder()
-                            .partnerInfo(new PartnerInfo(organizationEntity.getId(), organizationEntity.getId(), organizationEntity.getPartnerType(), organizationEntity.getName()))
-                            .paymentStatus(PaymentStatus.IN_VALID)
-                            .paymentResponsibility(organizationEntity.commissionPayedBySubEntities() ? PaymentResponsibility.PAYED_BY_SUB_ENTITIES : PaymentResponsibility.PAYED_BY_PARTNER)
-                            .date(date)
-                            .build();
-                    organizationEntity.getCommissions().add(partnerCommissions);
-                }
-                if (!organizationEntity.getType().equals(EntityType.DELIVERY_PARTNER)) {
-                    this.contractService.validateContract(organizationEntity.getContract());
-                }
-                if (organizationEntity.getType().equals(EntityType.PARTNER_WITH_SB)) {
-                    // TODO : should be removed after tests.
-                    try {
-                        this.createSubentity(organizationEntity);
-                    } catch (BadRequestException e) {
-                        System.out.println("Error creating subEntity : ");
-                        e.printStackTrace();
-                    }
-                }
-            }
-            organizationEntity.getContract().setContractStatus(ContractStatus.VALIDATED);
-            this.organizationEntityRepository.save(organizationEntity);
-            accountValidationService.validateManagerAccount(manager, pass);
-            return "Contract validated successfully";
-        } catch (Exception e) {
-            throw new Exception("Failed to validate organization entity. ");
+        if (organizationEntity == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Organization Entity not found");
         }
+        Contact managerContact = organizationEntity.getContacts().get(0);
+
+        String pass = RandomStringUtils.random(12, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+        UserRequest userRequest = new UserRequest(managerContact.getName(), managerContact.getEmail(), managerContact.getPhone(), pass, false, "MANAGER", organizationEntity.getId());
+        User manager = this.userService.create(userRequest);
+        if (!organizationEntity.getType().equals(EntityType.FOOD_BANK) && !organizationEntity.getType().equals(EntityType.ASSOCIATION)) {
+            Solution pro_market = this.solutionService.findByName("pro_market");
+            if (organizationEntity.getType().equals(EntityType.DELIVERY_PARTNER) || organizationEntity.getSolutions().contains(pro_market)) {
+                Date date = new Date();
+                PartnerCommissions partnerCommissions = PartnerCommissions.builder()
+                        .partnerInfo(new PartnerInfo(organizationEntity.getId(), organizationEntity.getId(), organizationEntity.getPartnerType(), organizationEntity.getName()))
+                        .paymentStatus(PaymentStatus.IN_VALID)
+                        .paymentResponsibility(organizationEntity.commissionPayedBySubEntities() ? PaymentResponsibility.PAYED_BY_SUB_ENTITIES : PaymentResponsibility.PAYED_BY_PARTNER)
+                        .date(date)
+                        .build();
+                organizationEntity.getCommissions().add(partnerCommissions);
+            }
+            if (!organizationEntity.getType().equals(EntityType.DELIVERY_PARTNER)) {
+                this.contractService.validateContract(organizationEntity.getContract());
+            }
+            if (organizationEntity.getType().equals(EntityType.PARTNER_WITH_SB)) {
+                // TODO: remove test-only subentity creation once data seeding is no longer needed.
+                try {
+                    this.createSubentity(organizationEntity);
+                } catch (BadRequestException e) {
+                    System.out.println("Error creating subEntity : ");
+                    e.printStackTrace();
+                }
+            }
+        }
+        organizationEntity.getContract().setContractStatus(ContractStatus.VALIDATED);
+        this.organizationEntityRepository.save(organizationEntity);
+        accountValidationService.validateManagerAccount(manager, pass);
+        return "Contract validated successfully";
     }
 
     @Transactional
@@ -478,6 +746,7 @@ public class OrganizationEntityService {
             contact.setName(new Name("John " + i, "Doe " + i));
             contact.setPhone("+212" + (int) (Math.random() * 1000000000));
             contact.setEmail("john.doe" + i + (int) (Math.random() * 1000000000) + "@example.com");
+            contact.setOrganizationEntity(organizationEntity);
             Address address = this.addressService.create(addressRequest);
 
             SubEntity subEntity = new SubEntity();
@@ -556,24 +825,47 @@ public class OrganizationEntityService {
             offer = this.offerRepository.save(offer);
 
             // Create Order 1
+            User defaultClient = null;
+            if (subEntity.getUsers() != null && !subEntity.getUsers().isEmpty()) {
+                defaultClient = subEntity.getUsers().get(0);
+            }
+
             Order order1 = new Order();
             order1.setPrice(new Price(BigDecimal.valueOf(50), Currency.getInstance("MAD")));
             order1.setQuantity(1);
             order1.setStatus(OrderStatus.COMPLETED);
+            order1.setOrderType(OrderType.AT_PLACE);
             order1.setOffer(offer);  // Attach the order to the offer
+            order1.setDonation(DonationType.COMMAND_CLIENT);
+            order1.setSeen(false);
+            if (defaultClient != null) {
+                order1.setClient(defaultClient);
+            }
 
             // Create Order 2
             Order order2 = new Order();
             order2.setPrice(new Price(BigDecimal.valueOf(30), Currency.getInstance("MAD")));
             order2.setQuantity(1);
             order2.setStatus(OrderStatus.COMPLETED);
+            order2.setOrderType(OrderType.AT_PLACE);
             order2.setOffer(offer);  // Attach the order to the offer
+            order2.setDonation(DonationType.COMMAND_CLIENT);
+            order2.setSeen(false);
+            if (defaultClient != null) {
+                order2.setClient(defaultClient);
+            }
 
             Order order3 = new Order();
             order3.setPrice(new Price(BigDecimal.valueOf(30), Currency.getInstance("MAD")));
             order3.setQuantity(1);
             order3.setStatus(OrderStatus.COMPLETED);
+            order3.setOrderType(OrderType.AT_PLACE);
             order3.setOffer(offer);
+            order3.setDonation(DonationType.COMMAND_CLIENT);
+            order3.setSeen(false);
+            if (defaultClient != null) {
+                order3.setClient(defaultClient);
+            }
             // Create Transaction for Order 1
             Transaction transaction1 = new Transaction();
             transaction1.setPaymentId("PAY123");

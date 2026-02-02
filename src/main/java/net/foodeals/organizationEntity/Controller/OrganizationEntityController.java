@@ -8,6 +8,7 @@ import net.foodeals.common.dto.response.UpdateDetails;
 import net.foodeals.contract.domain.entities.enums.ContractStatus;
 import net.foodeals.location.application.dtos.responses.CityResponse;
 import net.foodeals.organizationEntity.application.dtos.requests.CreateAssociationDto;
+import net.foodeals.organizationEntity.application.dtos.requests.PartnerDraftRequest;
 import net.foodeals.organizationEntity.application.dtos.responses.*;
 import net.foodeals.organizationEntity.application.dtos.requests.CreateAnOrganizationEntityDto;
 import net.foodeals.organizationEntity.application.services.OrganizationEntityService;
@@ -116,7 +117,25 @@ public class OrganizationEntityController {
     @Transactional
     public ResponseEntity<?> getFormData(@PathVariable("id") UUID id) {
         OrganizationEntity organizationEntity = this.organizationEntityService.getOrganizationEntityById(id);
+        if (organizationEntity.getContract() != null && organizationEntity.getContract().getContractStatus() == ContractStatus.DRAFT) {
+            OrganizationEntityFormData draftFormData = this.organizationEntityService.buildDraftFormData(organizationEntity);
+            if (draftFormData != null) {
+                return new ResponseEntity<>(draftFormData, HttpStatus.OK);
+            }
+        }
         return new ResponseEntity<>(organizationEntity.getType().equals(EntityType.DELIVERY_PARTNER) ?   this.modelMapper.convertToDeliveryFormData(organizationEntity) : this.modelMapper.convertToFormData(organizationEntity), HttpStatus.OK);
+    }
+
+    @PostMapping("/partners/draft")
+    @Transactional
+    public ResponseEntity<PartnerDraftResponse> createPartnerDraft(@RequestBody PartnerDraftRequest draftRequest) {
+        return ResponseEntity.ok(this.organizationEntityService.upsertPartnerDraft(null, draftRequest));
+    }
+
+    @PatchMapping("/partners/draft/{id}")
+    @Transactional
+    public ResponseEntity<PartnerDraftResponse> updatePartnerDraft(@PathVariable("id") UUID id, @RequestBody PartnerDraftRequest draftRequest) {
+        return ResponseEntity.ok(this.organizationEntityService.upsertPartnerDraft(id, draftRequest));
     }
 
     @DeleteMapping("/{uuid}")
@@ -273,11 +292,7 @@ public class OrganizationEntityController {
     @PostMapping(value = "/partners/validate/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
     public ResponseEntity<String> validateOrganizationEntity(@PathVariable("id") UUID id, @RequestPart("document") MultipartFile file) throws Exception {
-        try {
-            return new ResponseEntity<String>(this.organizationEntityService.validateOrganizationEntity(id, file), HttpStatus.OK);
-        } catch (Exception e) {
-            throw new Exception("failed to validate organization entity: ");
-        }
+        return ResponseEntity.ok(this.organizationEntityService.validateOrganizationEntity(id, file));
     }
 
     @GetMapping("/partners/contracts/{id}")

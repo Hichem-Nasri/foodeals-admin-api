@@ -7,6 +7,7 @@ import net.foodeals.common.valueOjects.Price;
 import net.foodeals.delivery.domain.entities.Delivery;
 import net.foodeals.location.domain.entities.Address;
 import net.foodeals.offer.domain.entities.Offer;
+import net.foodeals.order.domain.enums.DonationType;
 import net.foodeals.order.domain.enums.OrderStatus;
 import net.foodeals.order.domain.enums.OrderType;
 import net.foodeals.user.domain.entities.User;
@@ -36,6 +37,13 @@ public class Order extends AbstractEntity<UUID> {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "donation", nullable = false)
+    private DonationType donation = DonationType.COMMAND_CLIENT;
+
+    @Column(name = "seen", nullable = false)
+    private boolean seen = false;
 
     @ManyToOne(cascade = CascadeType.ALL)
     private User client;
@@ -93,6 +101,16 @@ public class Order extends AbstractEntity<UUID> {
 
     public Order setStatus(OrderStatus orderStatus) {
         this.status = orderStatus;
+        return this;
+    }
+
+    public Order setDonation(DonationType donation) {
+        this.donation = donation;
+        return this;
+    }
+
+    public Order setSeen(boolean seen) {
+        this.seen = seen;
         return this;
     }
 

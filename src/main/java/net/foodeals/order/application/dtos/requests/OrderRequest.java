@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import net.foodeals.common.valueOjects.Price;
 import net.foodeals.delivery.application.dtos.requests.delivery.DeliveryRequest;
 import net.foodeals.location.application.dtos.requests.AddressRequest;
+import net.foodeals.order.domain.enums.DonationType;
 import net.foodeals.order.domain.enums.OrderStatus;
 import net.foodeals.order.domain.enums.OrderType;
 
@@ -13,6 +14,7 @@ public record OrderRequest(
         @NotNull Price price,
         @NotNull OrderType type,
         @NotNull OrderStatus status,
+        DonationType donation,
         @NotNull Integer clientId,
         @NotNull UUID offerId,
         UUID couponId,

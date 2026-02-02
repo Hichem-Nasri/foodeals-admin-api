@@ -53,6 +53,12 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
     @Column(name = "cover_path")
     private String coverPath;
 
+    @Column(name = "fee_delivered", nullable = false)
+    private boolean feeDelivered = false;
+
+    @Column(name = "is_featured", nullable = false)
+    private boolean isFeatured = false;
+
     @Embedded
     private Coordinates coordinates;
 
