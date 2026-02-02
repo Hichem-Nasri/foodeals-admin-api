@@ -28,9 +28,12 @@ public interface ProspectRepository extends BaseRepository<Prospect, UUID> {
 
     @Query("SELECT DISTINCT p FROM Prospect p " +
             "LEFT JOIN p.activities a " +
-            "JOIN p.address.region.city c " +
-            "JOIN c.state.country co " +
-            "JOIN p.contacts ct " +
+            "LEFT JOIN p.address addr " +
+            "LEFT JOIN addr.region r " +
+            "LEFT JOIN r.city c " +
+            "LEFT JOIN c.state s " +
+            "LEFT JOIN s.country co " +
+            "LEFT JOIN p.contacts ct " +
             "WHERE (coalesce(:#{#filter.startDate}, null) IS NULL OR p.createdAt >= :#{#filter.startDate}) " +
             "AND (coalesce(:#{#filter.endDate}, null) IS NULL OR p.createdAt <= :#{#filter.endDate}) " +
             "AND (:#{#filter.names} IS NULL OR p.name IN :#{#filter.names}) " +
