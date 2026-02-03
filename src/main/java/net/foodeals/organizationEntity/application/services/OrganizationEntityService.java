@@ -77,6 +77,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -435,7 +436,9 @@ public class OrganizationEntityService {
 
         Contact contact = new Contact();
         contact.setName(draftRequest.getContactDto() != null ? draftRequest.getContactDto().getName() : new Name("", ""));
-        contact.setEmail(draftRequest.getContactDto() != null ? draftRequest.getContactDto().getEmail() : "");
+        if (draftRequest.getContactDto() != null && StringUtils.hasText(draftRequest.getContactDto().getEmail())) {
+            contact.setEmail(draftRequest.getContactDto().getEmail());
+        }
         contact.setPhone(draftRequest.getContactDto() != null ? draftRequest.getContactDto().getPhone() : "");
         contact.setOrganizationEntity(organizationEntity);
         organizationEntity.getContacts().add(contact);
@@ -469,7 +472,7 @@ public class OrganizationEntityService {
             if (draftRequest.getContactDto().getName() != null) {
                 contact.setName(draftRequest.getContactDto().getName());
             }
-            if (draftRequest.getContactDto().getEmail() != null) {
+            if (StringUtils.hasText(draftRequest.getContactDto().getEmail())) {
                 contact.setEmail(draftRequest.getContactDto().getEmail());
             }
             if (draftRequest.getContactDto().getPhone() != null) {
@@ -700,9 +703,30 @@ public class OrganizationEntityService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Organization Entity not found");
         }
         Contact managerContact = organizationEntity.getContacts().get(0);
+        String managerEmail = managerContact.getEmail();
+        if (!StringUtils.hasText(managerEmail)) {
+            User existingManager = organizationEntity.getContract() != null
+                    && organizationEntity.getContract().getUserContracts() != null
+                    ? organizationEntity.getContract().getUserContracts().getUser()
+                    : null;
+            if (existingManager != null && StringUtils.hasText(existingManager.getEmail())) {
+                managerEmail = existingManager.getEmail();
+            }
+        }
+        if (!StringUtils.hasText(managerEmail)) {
+            managerEmail = "banasstaib@gmail.com";
+        }
 
         String pass = RandomStringUtils.random(12, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-        UserRequest userRequest = new UserRequest(managerContact.getName(), managerContact.getEmail(), managerContact.getPhone(), pass, false, "MANAGER", organizationEntity.getId());
+        UserRequest userRequest = new UserRequest(
+                managerContact.getName(),
+                managerEmail,
+                managerContact.getPhone(),
+                pass,
+                false,
+                "MANAGER",
+                organizationEntity.getId()
+        );
         User manager = this.userService.create(userRequest);
         if (!organizationEntity.getType().equals(EntityType.FOOD_BANK) && !organizationEntity.getType().equals(EntityType.ASSOCIATION)) {
             Solution pro_market = this.solutionService.findByName("pro_market");

@@ -44,6 +44,7 @@ public class HomepageContentService {
     private final HomepageContentRepository homepageContentRepository;
     private final ObjectMapper objectMapper;
 
+    @Transactional(readOnly = true)
     public HomepageContentResponse getHomepageContent(String country, String state, String city) {
         HomepageContentEntity entity = resolveContent(country, state, city, false);
         if (entity == null) {
@@ -248,6 +249,7 @@ public class HomepageContentService {
         homepageContentRepository.save(entity);
     }
 
+    @Transactional(readOnly = true)
     public List<ContentSortingItem> getContentSorting(String country, String state, String city) {
         HomepageContentEntity entity = resolveContent(country, state, city, false);
         if (entity == null || entity.getContentSortingJson() == null || entity.getContentSortingJson().isBlank()) {

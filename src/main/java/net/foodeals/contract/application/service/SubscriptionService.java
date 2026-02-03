@@ -6,6 +6,7 @@ import net.foodeals.common.valueOjects.Price;
 import net.foodeals.contract.application.DTo.upload.ContractSubscriptionDto;
 import net.foodeals.contract.domain.entities.Deadlines;
 import net.foodeals.contract.domain.entities.Subscription;
+import net.foodeals.contract.domain.entities.SolutionContract;
 import net.foodeals.contract.domain.entities.enums.DeadlineStatus;
 import net.foodeals.contract.domain.entities.enums.SubscriptionStatus;
 import net.foodeals.contract.domain.repositories.SubscriptionRepository;
@@ -15,9 +16,11 @@ import net.foodeals.payment.domain.entities.Enum.PartnerType;
 import net.foodeals.payment.domain.entities.Enum.PaymentResponsibility;
 import net.foodeals.payment.domain.entities.PartnerInfo;
 import org.apache.velocity.exception.ResourceNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -63,23 +66,41 @@ public class SubscriptionService {
     public Subscription update(Subscription subscription, ContractSubscriptionDto contractSubscriptionDto) {
         subscription.setAmount(new Price(new BigDecimal(contractSubscriptionDto.getAnnualPayment()), Currency.getInstance("MAD")));
         subscription.setNumberOfDueDates(contractSubscriptionDto.getNumberOfDueDates());
-        OrganizationEntity organizationEntity = this.organizationEntityRepository.findById(subscription.getPartner().id())
-                .orElseThrow(() -> new ResourceNotFoundException("organization not found"));
+        OrganizationEntity organizationEntity = resolveOrganizationEntity(subscription);
         subscription.setPartnerI(organizationEntity);
-        subscription.setPartner(new PartnerInfo(organizationEntity.getId(), organizationEntity.getId(), organizationEntity.getPartnerType(), organizationEntity.getName()));
+        subscription.setPartner(new PartnerInfo(
+                organizationEntity.getId(),
+                organizationEntity.getId(),
+                organizationEntity.getPartnerType(),
+                organizationEntity.getName()
+        ));
         return this.subscriptionRepository.save(subscription);
     }
 
     @Transactional
     public void startSubscription(Subscription subscription) {
-        OrganizationEntity organization = this.organizationEntityRepository.findById(subscription.getPartner().id())
-                .orElseThrow(() -> new ResourceNotFoundException("organization entity not found"));
+        OrganizationEntity organization = resolveOrganizationEntity(subscription);
         subscription.setPartnerI(organization);
+        subscription.setPartner(new PartnerInfo(
+                organization.getId(),
+                organization.getId(),
+                organization.getPartnerType(),
+                organization.getName()
+        ));
+        Integer numberOfDueDates = subscription.getNumberOfDueDates();
+        if (numberOfDueDates == null || numberOfDueDates <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Subscription numberOfDueDates must be greater than 0");
+        }
+        if (subscription.getDuration() == null || subscription.getDuration() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Subscription duration must be greater than 0");
+        }
+        if (subscription.getAmount() == null || subscription.getAmount().amount() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Subscription amount is required");
+        }
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = startDate.plusMonths(subscription.getDuration());
         subscription.setStartDate(startDate);
         subscription.setEndDate(endDate);
-        Integer numberOfDueDates = subscription.getNumberOfDueDates();
         subscription.setSubscriptionStatus(SubscriptionStatus.IN_PROGRESS);
         List<Deadlines> deadlines = new ArrayList<>();
 
@@ -133,5 +154,43 @@ public class SubscriptionService {
     @Transactional
     public Page<Subscription> findByPartnerNameAndTypeIn(String name, List<PartnerType> types, Pageable pageable) {
         return this.subscriptionRepository.findByPartnerNameAndTypeIn(name, types, pageable);
+    }
+
+    private OrganizationEntity resolveOrganizationEntity(Subscription subscription) {
+        if (subscription == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Subscription is required");
+        }
+
+        if (subscription.getPartner() != null) {
+            UUID partnerOrgId = subscription.getPartner().organizationId() != null
+                    ? subscription.getPartner().organizationId()
+                    : subscription.getPartner().id();
+            return this.organizationEntityRepository.findById(partnerOrgId)
+                    .orElseThrow(() -> new ResourceNotFoundException("organization entity not found"));
+        }
+
+        if (subscription.getPartnerI() instanceof OrganizationEntity organizationEntity) {
+            return organizationEntity;
+        }
+
+        if (subscription.getSolutionContracts() != null && !subscription.getSolutionContracts().isEmpty()) {
+            for (SolutionContract solutionContract : subscription.getSolutionContracts()) {
+                if (solutionContract != null
+                        && solutionContract.getContract() != null
+                        && solutionContract.getContract().getOrganizationEntity() != null) {
+                    return solutionContract.getContract().getOrganizationEntity();
+                }
+            }
+        }
+
+        if (subscription.getParentPartner() != null && subscription.getParentPartner().getPartner() != null) {
+            UUID parentOrgId = subscription.getParentPartner().getPartner().organizationId() != null
+                    ? subscription.getParentPartner().getPartner().organizationId()
+                    : subscription.getParentPartner().getPartner().id();
+            return this.organizationEntityRepository.findById(parentOrgId)
+                    .orElseThrow(() -> new ResourceNotFoundException("parent organization entity not found"));
+        }
+
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Subscription partner is missing");
     }
 }
