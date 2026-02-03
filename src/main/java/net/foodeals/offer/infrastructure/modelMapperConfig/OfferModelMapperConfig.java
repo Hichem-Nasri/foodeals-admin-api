@@ -13,6 +13,7 @@ import net.foodeals.offer.domain.entities.OpenTime;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -57,10 +58,13 @@ public class OfferModelMapperConfig {
 
         mapper.addConverter(context -> {
             final Offer offer = context.getSource();
-            final List<OpenTimeResponse> openTimeResponses = offer.getOpenTime()
-                    .stream()
-                    .map((element) -> mapper.map(element, OpenTimeResponse.class))
-                    .toList();
+            final List<OpenTimeResponse> openTimeResponses = offer.getOpenTime() == null
+                    ? Collections.emptyList()
+                    : offer.getOpenTime()
+                            .stream()
+                            .map((element) -> mapper.map(element, OpenTimeResponse.class))
+                            .toList();
+            final var offerable = offer.getOfferable();
 
             return new OfferResponse(
                     offer.getId(),
@@ -69,8 +73,8 @@ public class OfferModelMapperConfig {
                     offer.getReduction(),
                     offer.getBarcode(),
                     openTimeResponses,
-                    offer.getOfferable(),
-                    offer.getOfferable().type()
+                    offerable,
+                    offerable != null ? offerable.type() : null
             );
         }, Offer.class, OfferResponse.class);
     }

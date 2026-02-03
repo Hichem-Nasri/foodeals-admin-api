@@ -14,7 +14,7 @@ import net.foodeals.user.application.dtos.responses.UserResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Configuration
 @RequiredArgsConstructor
@@ -22,10 +22,20 @@ public class OrderModelMapperConfig {
 
     private final ModelMapper mapper;
 
+    private <S, D> D mapIfNotNull(S source, Class<D> targetType) {
+        if (source == null) {
+            return null;
+        }
+        return mapper.map(source, targetType);
+    }
+
     @PostConstruct
     public void configure() {
         mapper.addConverter(context -> {
             Coupon coupon = context.getSource();
+            if (coupon == null) {
+                return null;
+            }
             return new CouponResponse(
                     coupon.getId(),
                     coupon.getCode(),
@@ -35,25 +45,29 @@ public class OrderModelMapperConfig {
             );
         }, Coupon.class, CouponResponse.class);
 
-//        mapper.addConverter(context -> {
-//            Order order = context.getSource();
-//            return new OrderResponse(
-//                    order.getId(),
-//                    order.getPrice(),
-//                    order.getType(),
-//                    order.getStatus(),
-//                    mapper.map(order.getClient(), UserResponse.class),
-//                    mapper.map(order.getOffer(), OfferResponse.class),
-////                    mapper.map(order.getShippingAddress(), AddressResponse.class),
-//                    mapper.map(order.getCoupon(), CouponResponse.class),
-//                    order.getTransactions().stream()
-//                            .map(transaction -> mapper.map(transaction, TransactionResponse.class))
-//                            .collect(Collectors.toList())
-//            );
-//        }, Order.class, OrderResponse.class);
+        mapper.addConverter(context -> {
+            Order order = context.getSource();
+            if (order == null) {
+                return null;
+            }
+            return new OrderResponse(
+                    order.getId(),
+                    order.getPrice(),
+                    order.getType(),
+                    order.getStatus(),
+                    mapIfNotNull(order.getClient(), UserResponse.class),
+                    mapIfNotNull(order.getOffer(), OfferResponse.class),
+//                    mapper.map(order.getShippingAddress(), AddressResponse.class),
+                    mapIfNotNull(order.getCoupon(), CouponResponse.class),
+                    Collections.emptyList()
+            );
+        }, Order.class, OrderResponse.class);
 
         mapper.addConverter(context -> {
             Transaction transaction = context.getSource();
+            if (transaction == null) {
+                return null;
+            }
             return new TransactionResponse(
                     transaction.getId(),
                     transaction.getPaymentId(),
@@ -62,7 +76,7 @@ public class OrderModelMapperConfig {
                     transaction.getPrice(),
                     transaction.getStatus(),
                     transaction.getType(),
-                    mapper.map(transaction.getOrder(), OrderResponse.class)
+                    mapIfNotNull(transaction.getOrder(), OrderResponse.class)
             );
         }, Transaction.class, TransactionResponse.class);
     }
